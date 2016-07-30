@@ -13,8 +13,10 @@ module HTMLSquish
       :minify_javascript => true,
       :minify_css => true,
       :uglifier_options => {
-        :ascii_only => false,
-        :comments => /\A!/,
+        :output => {
+          :ascii_only => false,
+          :comments => /\A!/,
+        },
       },
       :sass_options => {
         :style => :compressed,
@@ -45,12 +47,12 @@ module HTMLSquish
 
     def minify_css(content)
       root = Sass::SCSS::CssParser.new(content, nil, nil).parse
-      root.options = { :style => :compressed }
-      root.render.rstrip
+      root.options = @options[:sass_options]
+      root.render.rstrip if @options[:sass_options][:style] == :compressed
     end
 
     def minify_js(content)
-      Uglifier.compile content, :output => { :ascii_only => false, :comments => /\A!/ }
+      Uglifier.compile(content, @options[:uglifier_options])
     end
 
     VOID_ELEMENTS = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
