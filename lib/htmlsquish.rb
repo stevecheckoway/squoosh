@@ -37,7 +37,7 @@ module HTMLSquish
       doc = Nokogiri::HTML5(content) do |config|
         config.strict.nonet.noent
       end
-      return content unless doc.child.html5_dtd?
+      return content unless doc&.internal_subset&.html5_dtd?
       remove_comments!(doc) if @options[:remove_comments]
       compress_javascript!(doc) if @options[:minify_javascript]
       compress_css!(doc) if @options[:minify_css]
