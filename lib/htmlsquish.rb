@@ -1,5 +1,5 @@
 require 'htmlsquish/version'
-require 'nokogiri'
+require 'nokogumbo'
 require 'sass'
 require 'uglifier'
 
@@ -34,7 +34,7 @@ module HTMLSquish
     end
 
     def minify_html(content)
-      doc = Nokogiri::HTML(content) do |config|
+      doc = Nokogiri::HTML5(content) do |config|
         config.strict.nonet.noent
       end
       return content unless doc.child.html5_dtd?
@@ -301,7 +301,7 @@ module HTMLSquish
         return false unless node.children[0].name == 'tr'
         prev_elm = node.previous_element
         return prev_elm.nil? || !['tbody', 'thead', 'tfoot'].include?(prev_elm.name) ||
-          !omit_end_tag(prev_elm)
+          !omit_end_tag?(prev_elm)
       end
       false
     end
@@ -313,7 +313,6 @@ module HTMLSquish
         next if node.comment?
         next if node.processing_instruction?
         next if inter_element_whitespace? node
-        STDERR.puts "#{n.path} has more content: #{node.path}"
         return true
       end
       false
@@ -423,7 +422,7 @@ module HTMLSquish
       when 'thead'
         # A thead element's end tag may be omitted if the thead element is
         # immediately followed by a tbody or tfoot element.
-        return ['tbody', 'thead'].include? next_elm&.name
+        return ['tbody', 'tfoot'].include? next_elm&.name
 
       when 'tbody'
         # A tbody element's end tag may be omitted if the tbody element is
