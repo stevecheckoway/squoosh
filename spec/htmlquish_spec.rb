@@ -47,8 +47,8 @@ describe HTMLSquish do
     # An html element's end tag may be omitted if the html element is not
     # immediately followed by a comment.
     omit '/html', ['<html></html>']
-    # XXX: nokogumbo does not parse comments correctly after html correctly.
-    # keep '/html', ['<html></html><!-- -->']
+
+    keep '/html', ['<html></html><!-- -->']
 
     # A head element's start tag may be omitted if the element is empty, or if
     # the first thing inside the head element is an element.

@@ -32,5 +32,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "simplecov", "~> 0.12.0"
   spec.add_runtime_dependency "uglifier", "~> 3.0"
   spec.add_runtime_dependency "sass", "~> 3.4"
-  spec.add_runtime_dependency "nokogumbo", "~> 1.4"
+  spec.add_runtime_dependency "nokogumbo", "~> 1.4", ">= 1.4.9"
 end
