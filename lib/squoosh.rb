@@ -5,7 +5,7 @@ require 'set'
 require 'uglifier'
 
 module Squoosh
-  class Squisher
+  class Squoosher
     DEFAULT_OPTIONS = {
       :remove_comments => true,
       :omit_tags => true,
@@ -480,17 +480,17 @@ module Squoosh
 
   module_function
   def minify_html(content, options = {})
-    Squisher.new(options).minify_html content
+    Squoosher.new(options).minify_html content
   end
 
   module_function
   def minify_css(content, options = {})
-    Squisher.new(options).minify_css content
+    Squoosher.new(options).minify_css content
   end
 
   module_function
   def minify_js(content, options = {})
-    Squisher.new(options).minify_js content
+    Squoosher.new(options).minify_js content
   end
 end
 # vim: set sw=2 sts=2 ts=8 expandtab:
