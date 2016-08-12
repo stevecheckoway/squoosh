@@ -1,6 +1,7 @@
 require 'htmlsquish/version'
 require 'nokogumbo'
 require 'sass'
+require 'set'
 require 'uglifier'
 
 module HTMLSquish
@@ -55,15 +56,14 @@ module HTMLSquish
       Uglifier.compile(content, @options[:uglifier_options])
     end
 
-    VOID_ELEMENTS = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
-                     'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']
-    RAW_TEXT_ELEMENTS = ['script', 'style']
-    ESCAPABLE_RAW_TEXT_ELEMENTS = ['textarea', 'title']
-    FOREIGN_ELEMENTS = ['math', 'svg']
-    HTML_WHITESPACE = "\t\n\x0c\r "
-    private_constant :HTML_WHITESPACE
+    # Element kinds
+    VOID_ELEMENTS = Set.new(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+                     'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']).freeze
+    RAW_TEXT_ELEMENTS = Set.new(['script', 'style']).freeze
+    ESCAPABLE_RAW_TEXT_ELEMENTS = Set.new(['textarea', 'title']).freeze
+    FOREIGN_ELEMENTS = Set.new(['math', 'svg']).freeze
     private_constant :VOID_ELEMENTS, :RAW_TEXT_ELEMENTS, :ESCAPABLE_RAW_TEXT_ELEMENTS
-    private_constant :FOREIGN_ELEMENTS, :HTML_WHITESPACE
+    private_constant :FOREIGN_ELEMENTS
 
     private
     def void_element?(node)
@@ -91,6 +91,30 @@ module HTMLSquish
         !raw_text_element?(node) &&
         !escapable_raw_text_element?(node) &&
         !foreign_element?(node)
+    end
+
+    HTML_WHITESPACE = "\t\n\x0c\r "
+    private_constant :HTML_WHITESPACE
+
+    private
+    def inter_element_whitespace?(node)
+      return false unless node.text?
+      node.content.each_char.all? { |c| HTML_WHITESPACE.include? c }
+    end
+
+    PHRASING_CONTENT = Set.new(%w/a abbr area audio b bdi bdo br button canvas cite
+                                  code data datalist del dfn em embed i iframe img
+                                  input ins kbd keygen label link map mark math meta
+                                  meter noscript object output picture progress q ruby
+                                  s samp script select slot small span strong sub sup
+                                  svg template textarea time u var video wbr/).freeze
+    private_constant :PHRASING_CONTENT
+
+    private
+    def phrasing_content?(node)
+      name = node.name
+      return false unless PHRASING_CONTENT.include?(name)
+
     end
 
     private
@@ -182,21 +206,15 @@ module HTMLSquish
       nil
     end
 
-    private
-    def inter_element_whitespace?(node)
-      return false unless node.text?
-      node.content.each_char.all? { |c| HTML_WHITESPACE.include? c }
-    end
-
+    # Be conservative. If an element can be phrasing content, assume it is.
     private
     def text_node_removable?(node)
-      return false unless inter_element_whitespace? node
+      return false unless inter_element_whitespace?(node)
+      return false if phrasing_content?(node.parent)
       prev_elm = node.previous_element
       next_elm = node.next_element
-      parent_block = node.parent.description&.block?
-      prev_block = prev_elm.nil? ? parent_block : prev_elm.description&.block?
-      next_block = next_elm.nil? ? parent_block : next_elm.description&.block?
-      prev_block && next_block
+      prev_elm.nil? || !phrasing_content?(prev_elm) ||
+        next_elm.nil? || !phrasing_content(next_elm)
     end
 
     private
@@ -337,7 +355,7 @@ module HTMLSquish
       when 'head'
         # A head element's end tag may be omitted if the head element is not
         # immediately followed by a space character or a comment.
-        return next_node.nil? || 
+        return next_node.nil? ||
                (next_node.text? && !next_node.content.start_with?(' ')) ||
                !next_node.comment?
 
@@ -415,7 +433,7 @@ module HTMLSquish
       when 'colgroup'
         # A colgroup element's end tag may be omitted if the colgroup element is
         # not immediately followed by a space character or a comment.
-        return next_node.nil? || 
+        return next_node.nil? ||
                (next_node.text? && !next_node.content.start_with(' ')) ||
                !next_node.comment?
 
