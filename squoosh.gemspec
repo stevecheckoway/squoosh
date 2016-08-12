@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'htmlsquish/version'
+require 'squoosh/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "htmlsquish"
-  spec.version       = HTMLSquish::VERSION
+  spec.name          = "squoosh"
+  spec.version       = Squoosh::VERSION
   spec.authors       = ["Stephen Checkoway"]
   spec.email         = ["s@pahtak.org"]
 
   spec.summary       = "Minify HTML/CSS/JavaScript files."
-  spec.homepage      = "https://github.com/stevecheckoway/htmlsquish"
+  spec.homepage      = "https://github.com/stevecheckoway/squoosh"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'

@@ -12,7 +12,7 @@ def omit(tag, htmls)
   context "omit <#{tag}> in" do
     htmls.each do |html|
       it html do
-        expect(HTMLSquish.minify_html('<!DOCTYPE html>' + html,
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html,
                                      OMIT_TAG_OPTIONS)).not_to match "<#{tag}[ >]"
       end
     end
@@ -23,14 +23,14 @@ def keep(tag, htmls)
   context "keep <#{tag}> in" do
     htmls.each do |html|
       it html do
-        expect(HTMLSquish.minify_html('<!DOCTYPE html>' + html,
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html,
                                      OMIT_TAG_OPTIONS)).to match "<#{tag}[ >]"
       end
     end
   end
 end
 
-describe HTMLSquish do
+describe Squoosh do
   describe '.minify_html' do
     # An html element's start tag may be omitted if the first thing inside the
     # html element is not a comment.

@@ -1,10 +1,10 @@
-require 'htmlsquish/version'
+require 'squoosh/version'
 require 'nokogumbo'
 require 'sass'
 require 'set'
 require 'uglifier'
 
-module HTMLSquish
+module Squoosh
   class Squisher
     DEFAULT_OPTIONS = {
       :remove_comments => true,
