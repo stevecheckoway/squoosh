@@ -86,7 +86,7 @@ added to `_config.yml`.
 *I have no idea if this is correct as I've done none of these steps myself.*
 
 After checking out the repo, run `bin/setup` to install dependencies. Then,
-run `rake none` to run the tests. You can also run `bin/console` for an
+run `bundle exec rake` to run the tests. You can also run `bin/console` for an
 interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`.
