@@ -141,25 +141,62 @@ module Squoosh
       false
     end
 
+    EVENT_HANDLERS_XPATH = (
+      # Select all attribute nodes whose names start with "on";
+      '//@*[starts-with(name(),"on")]' +
+      # and are not descendants of foreign elements
+      '[not(ancestor::math or ancestor::svg)]' +
+      # and
+      '[' +
+        # whose names are any of
+        (%w/abort cancel canplay canplaythrough change click close contextmenu
+            cuechange dblclick drag dragend dragenter dragexit dragleave
+            dragover dragstart drop durationchange emptied ended input invalid
+            keydown keypress keyup loadeddata loadedmetadata loadend loadstart
+            mousedown mouseenter mouseleave mousemove mouseout mouseover
+            mouseup wheel pause play playing progress ratechange reset seeked
+            seeking select show stalled submit suspend timeupdate toggle
+            volumechange waiting
+            cut copy paste
+            blur error focus load resize scroll/.map { |n| "name()=\"on#{n}\"" }.join(' or ')) +
+        # or whose parent is body or frameset
+        ' or (parent::body or parent::frameset)' +
+          # and
+          ' and (' +
+            # whose names are any of
+            (%w/afterprint beforeprint beforeunload hashchange languagechange
+                message offline online pagehide pageshow popstate
+                rejectionhandled storage unhandledrejection
+                unload/.map { |n| "name()=\"on#{n}\"" }.join(' or ')) +
+          ')' +
+      ']'
+    ).freeze
+    private_constant :EVENT_HANDLERS_XPATH
+
     private
     def compress_javascript!(doc)
-      doc.xpath("//script").each do |node|
+      # Compress script elements.
+      doc.xpath("//script[not(ancestor::math or ancestor::svg)]").each do |node|
         type = node['type']&.downcase
         next unless type.nil? || type == "text/javascript"
         node.content = minify_js node.content
+      end
+      # Compress event handlers.
+      doc.xpath(EVENT_HANDLERS_XPATH).each do |attr|
+        attr.content = minify_js(attr.content)
       end
     end
 
     private
     def compress_css!(doc)
       # Compress style elements.
-      doc.xpath("//style").each do |node|
+      doc.xpath("//style[not(ancestor::math or ancestor::svg)]").each do |node|
         type = node['type']&.downcase
         next unless type.nil? || type == "text/css"
         node.content = minify_css node.content
       end
       # Compress style attributes
-      doc.xpath("//@style").each do |node|
+      doc.xpath("//@style[not(ancestor::math or ancestor::svg)]").each do |node|
         elm_type = node.parent.name
         css = "#{elm_type}{#{node.content}}"
         node.content = minify_css(css)[elm_type.length+1 .. -3]
