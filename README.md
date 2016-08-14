@@ -24,6 +24,14 @@ possible.
 Unlike some other HTML minifiers, Squoosh uses neither Java nor [regular
 expressions](http://stackoverflow.com/a/1732454) to parse HTML.
 
+## Limitations
+Squoosh will not minify
+
+- HTML 4 and earlier;
+- XHTML, any version;
+- [MathML](https://www.w3.org/TR/MathML3/) elements; nor
+- [SVG](https://www.w3.org/TR/SVG11/) elements.
+
 ## Installation
 
 *The generic installation instructions in this section probably won't work
