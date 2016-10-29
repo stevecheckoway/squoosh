@@ -113,8 +113,7 @@ module Squoosh
     private
     def phrasing_content?(node)
       name = node.name
-      return false unless PHRASING_CONTENT.include?(name)
-
+      PHRASING_CONTENT.include?(name)
     end
 
     private
@@ -205,16 +204,6 @@ module Squoosh
     end
 
     private
-    def first_in_block?(node)
-      node.previous_element.nil? && node.parent.description&.block?
-    end
-
-    private
-    def last_in_block?(node)
-      node.next_element.nil? && node.parent.description&.block?
-    end
-
-    private
     def compress_spaces!(node)
       if node.text?
         if text_node_removable? node
@@ -222,8 +211,8 @@ module Squoosh
         else
           content = node.content
           content.gsub! /[ \t\n\r\x0c]+/, " "
-          content.lstrip! if first_in_block? node
-          content.rstrip! if last_in_block? node
+          content.lstrip! if trim_left? node
+          content.rstrip! if trim_right? node
           node.content = content
         end
       elsif node.element?
@@ -251,7 +240,21 @@ module Squoosh
       prev_elm = node.previous_element
       next_elm = node.next_element
       prev_elm.nil? || !phrasing_content?(prev_elm) ||
-        next_elm.nil? || !phrasing_content(next_elm)
+        next_elm.nil? || !phrasing_content?(next_elm)
+    end
+
+    private
+    def trim_left?(node)
+      prev_elm = node.previous_element
+      return !phrasing_content?(node.parent) if prev_elm.nil?
+      prev_elm.name == 'br'
+    end
+
+    private
+    def trim_right?(node)
+      next_elm = node.next_element
+      return !phrasing_content?(node.parent) if next_elm.nil?
+      next_elm.name == 'br'
     end
 
     private
@@ -314,6 +317,7 @@ module Squoosh
 
     private
     def omit_start_tag?(node)
+      return false unless @options[:omit_tags]
       return false unless node.attributes.empty?
       case node.name
       when 'html'
@@ -380,6 +384,7 @@ module Squoosh
     private
     def omit_end_tag?(node)
       return true if void_element? node
+      return false unless @options[:omit_tags]
       return false if node.parent.name == 'noscript'
       next_node = node.next_sibling
       next_elm = node.next_element

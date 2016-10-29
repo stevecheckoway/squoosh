@@ -8,6 +8,15 @@ OMIT_TAG_OPTIONS = {
   :minify_css => false,
 }.freeze
 
+KEEP_SPACES_OPTIONS = {
+  :omit_tags => true,
+  :compress_spaces => true,
+  :remove_comments => false,
+  :minify_javascript => false,
+  :minify_css => false,
+}.freeze
+
+
 def omit(tag, htmls)
   context "omit <#{tag}> in" do
     htmls.each do |html|
@@ -25,6 +34,17 @@ def keep(tag, htmls)
       it html do
         expect(Squoosh.minify_html('<!DOCTYPE html>' + html,
                                      OMIT_TAG_OPTIONS)).to match "<#{tag}[ >]"
+      end
+    end
+  end
+end
+
+def keep_spaces(htmls)
+  context "keep spaces in" do
+    htmls.each do |html|
+      it html do
+        html = '<!DOCTYPE html>' + html
+        expect(Squoosh.minify_html(html, KEEP_SPACES_OPTIONS)).to eq html
       end
     end
   end
@@ -262,6 +282,12 @@ describe Squoosh do
                  '<table><tr><th></th><!-- --></tr></table>']
 
     keep '/th', ['<table><tr><th></th><script></script></table>']
+
+
+    # Do not remove spaces between links.
+    keep_spaces(['<p><a href=example.com>Foo</a> <a href=example.com>Bar</a>',
+                 '<p>Foo <a href=example.com>Bar</a>',
+                 '<p><a href=example.com>Foo</a> Bar'])
   end
 end
 
