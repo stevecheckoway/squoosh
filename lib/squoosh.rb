@@ -259,7 +259,7 @@ module Squoosh
 
     private
     def stringify_node(node)
-      return node.to_html if !node.element?
+      return node.to_html(:encoding => 'UTF-8') if !node.element?
 
       output = ''
       # Add start tag. 8.1.2.1
