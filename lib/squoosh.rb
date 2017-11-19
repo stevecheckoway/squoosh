@@ -32,6 +32,8 @@ module Squoosh
         end
       end
       @options = DEFAULT_OPTIONS.merge(options)
+      @js_cache = {}
+      @css_cache = {}
     end
 
     def minify_html(content)
@@ -47,13 +49,16 @@ module Squoosh
     end
 
     def minify_css(content)
-      root = Sass::SCSS::CssParser.new(content, nil, nil).parse
-      root.options = @options[:sass_options]
-      root.render.rstrip if @options[:sass_options][:style] == :compressed
+      return content unless @options[:sass_options][:style] == :compressed
+      @css_cache[content] ||= begin
+        root = Sass::SCSS::CssParser.new(content, nil, nil).parse
+        root.options = @options[:sass_options]
+        root.render.rstrip
+      end
     end
 
     def minify_js(content)
-      Uglifier.compile(content, @options[:uglifier_options])
+      @js_cache[content] ||= Uglifier.compile(content, @options[:uglifier_options])
     end
 
     # Element kinds
