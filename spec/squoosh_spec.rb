@@ -288,6 +288,15 @@ describe Squoosh do
     keep_spaces(['<p><a href=example.com>Foo</a> <a href=example.com>Bar</a>',
                  '<p>Foo <a href=example.com>Bar</a>',
                  '<p><a href=example.com>Foo</a> Bar'])
+
+
+    context 'Compress style attribute in' do
+      html = '<div style="clear:both"></div>'
+      it html do
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, OMIT_TAG_OPTIONS))
+          .to match '<div style=clear:both>'
+      end
+    end
   end
 end
 

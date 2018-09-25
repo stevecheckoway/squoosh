@@ -37,15 +37,13 @@ module Squoosh
     end
 
     def minify_html(content)
-      doc = Nokogiri::HTML5(content) do |config|
-        config.strict.nonet.noent
-      end
+      doc = Nokogiri.HTML5(content)
       return content unless doc&.internal_subset&.html5_dtd?
       remove_comments!(doc) if @options[:remove_comments]
       compress_javascript!(doc) if @options[:minify_javascript]
       compress_css!(doc) if @options[:minify_css]
       doc.children.each { |c| compress_spaces!(c) } if @options[:compress_spaces]
-      '<!DOCTYPE html>' + doc.children.map { |node| stringify_node(node) }.join
+      doc.children.map { |node| stringify_node(node) }.join
     end
 
     def minify_css(content)
