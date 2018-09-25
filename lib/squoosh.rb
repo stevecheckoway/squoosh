@@ -201,7 +201,7 @@ module Squoosh
       doc.xpath("//@style[not(ancestor::math or ancestor::svg)]").each do |node|
         elm_type = node.parent.name
         css = "#{elm_type}{#{node.content}}"
-        node.content = minify_css(css)[elm_type.length+1 .. -3]
+        node.content = minify_css(css)[elm_type.length+1 .. -2]
       end
       nil
     end

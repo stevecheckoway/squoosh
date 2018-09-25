@@ -16,6 +16,13 @@ KEEP_SPACES_OPTIONS = {
   :minify_css => false,
 }.freeze
 
+CSS_OPTIONS = {
+  :omit_tags => true,
+  :compress_spaces => false,
+  :remove_comments => false,
+  :minify_javascript => false,
+  :minify_css => true,
+}.freeze
 
 def omit(tag, htmls)
   context "omit <#{tag}> in" do
@@ -293,7 +300,7 @@ describe Squoosh do
     context 'Compress style attribute in' do
       html = '<div style="clear:both"></div>'
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, OMIT_TAG_OPTIONS))
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, CSS_OPTIONS))
           .to match '<div style=clear:both>'
       end
     end
