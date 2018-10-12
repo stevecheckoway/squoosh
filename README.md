@@ -2,6 +2,9 @@
 
 Minifies HTML, JavaScript, and CSS, including inline JavaScript and CSS.
 
+[![Travis-CI Build
+Status](https://travis-ci.org/stevecheckoway/squoosh.svg)](https://travis-ci.org/stevecheckoway/squoosh)
+
 CSS minification is handled by [Sass](http://www.rubydoc.info/gems/sass)
 whereas JavaScript minification is handled by
 [Uglifier](http://www.rubydoc.info/gems/uglifier) which requires node.js.
@@ -49,6 +52,9 @@ Or install it yourself as:
     $ gem install squoosh
 
 ## Usage
+
+You can read the documentation
+[here](https://www.rubydoc.info/github/stevecheckoway/squoosh/v0.2.0).
 
 The three basic minification functions are
 
