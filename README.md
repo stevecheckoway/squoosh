@@ -34,10 +34,6 @@ Squoosh will not minify
 
 ## Installation
 
-*The generic installation instructions in this section probably won't work
-until this is uploaded to rubygems, at which point I will have deleted this
-note (hopefully).*
-
 Add this line to your application's Gemfile:
 
 ```ruby
@@ -60,7 +56,8 @@ The three basic minification functions are
 - `Squoosh::minify_js`
 - `Squoosh::minify_css`
 
-The `Squoosher` class allows some options, but those are likely to change.
+The `Squoosher` class caches (in memory) minified JavaScript and CSS which can
+significantly speed up minifying HTML with repeated scripts and style sheets.
 
 ### Using with Jekyll
 

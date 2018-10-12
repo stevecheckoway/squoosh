@@ -30,7 +30,7 @@ require 'uglifier'
 module Squoosh
   # Minify HTML, JavaScript, and CSS using a single set of options. Minified
   # versions of the JavaScript and CSS encountered are cached to speed up
-  # minification when the same scripts or inline stylesheets appear multiple
+  # minification when the same scripts or inline style sheets appear multiple
   # times.
   class Squoosher
     # Default options for minifying.

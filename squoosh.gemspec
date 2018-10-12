@@ -15,6 +15,13 @@ Gem::Specification.new do |spec|
   spec.license       = 'MIT'
   spec.files         = %w[LICENSE.txt README.md] + Dir['lib/**/*.rb']
 
+  spec.metadata      = {
+    'bug_tracker_uri' => 'https://github.com/stevecheckoway/squoosh/issues',
+    'changelog_uri'   => 'https://github.com/stevecheckoway/squoosh/blob/master/CHANGELOG.md',
+    'homepage_uri'    => spec.homepage,
+    'source_code_uri' => 'https://github.com/stevecheckoway/squoosh'
+  }
+
   spec.required_ruby_version = '~> 2.3'
 
   spec.add_development_dependency 'bundler'
@@ -25,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'yard'
 
   spec.add_runtime_dependency 'nokogumbo', '~> 2.0'
-  spec.add_runtime_dependency 'sass'
-  spec.add_runtime_dependency 'uglifier'
+  spec.add_runtime_dependency 'sass', '~> 3.6'
+  spec.add_runtime_dependency 'uglifier', '~> 4.1'
 end
 # vim: set sw=2 sts=2 ts=8 et:
