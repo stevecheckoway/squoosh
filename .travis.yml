@@ -1,5 +1,10 @@
 sudo: false
 language: ruby
+os:
+  - osx
+  - linux
 rvm:
-  - 2.3.1
-before_install: gem install bundler -v 1.12.5
+  - 2.3
+  - 2.4
+  - 2.5
+cache: bundler
