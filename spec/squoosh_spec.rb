@@ -1,27 +1,29 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 OMIT_TAG_OPTIONS = {
-  :omit_tags => true,
-  :compress_spaces => false,
-  :remove_comments => false,
-  :minify_javascript => false,
-  :minify_css => false,
+  omit_tags: true,
+  compress_spaces: false,
+  remove_comments: false,
+  minify_javascript: false,
+  minify_css: false
 }.freeze
 
 KEEP_SPACES_OPTIONS = {
-  :omit_tags => true,
-  :compress_spaces => true,
-  :remove_comments => false,
-  :minify_javascript => false,
-  :minify_css => false,
+  omit_tags: true,
+  compress_spaces: true,
+  remove_comments: false,
+  minify_javascript: false,
+  minify_css: false
 }.freeze
 
 CSS_OPTIONS = {
-  :omit_tags => true,
-  :compress_spaces => false,
-  :remove_comments => false,
-  :minify_javascript => false,
-  :minify_css => true,
+  omit_tags: true,
+  compress_spaces: false,
+  remove_comments: false,
+  minify_javascript: false,
+  minify_css: true
 }.freeze
 
 def omit(tag, htmls)
@@ -29,7 +31,7 @@ def omit(tag, htmls)
     htmls.each do |html|
       it html do
         expect(Squoosh.minify_html('<!DOCTYPE html>' + html,
-                                     OMIT_TAG_OPTIONS)).not_to match "<#{tag}[ >]"
+                                   OMIT_TAG_OPTIONS)).not_to match "<#{tag}[ >]"
       end
     end
   end
@@ -40,14 +42,14 @@ def keep(tag, htmls)
     htmls.each do |html|
       it html do
         expect(Squoosh.minify_html('<!DOCTYPE html>' + html,
-                                     OMIT_TAG_OPTIONS)).to match "<#{tag}[ >]"
+                                   OMIT_TAG_OPTIONS)).to match "<#{tag}[ >]"
       end
     end
   end
 end
 
 def keep_spaces(htmls)
-  context "keep spaces in" do
+  context 'keep spaces in' do
     htmls.each do |html|
       it html do
         html = '<!DOCTYPE html>' + html
@@ -81,8 +83,11 @@ describe Squoosh do
     # the first thing inside the head element is an element.
     omit 'head', ['<head></head>',
                   '<head><title></title></head>']
-    keep 'head', ['<head id=X></head>',
-                  '<head><!-- --><meta http-equiv="Content-Type" content="text/html"></head>']
+    keep 'head',
+         ['<head id=X></head>',
+          '<head><!-- -->' \
+            '<meta http-equiv="Content-Type" content="text/html">' \
+            '</head>']
 
     # A head element's end tag may be omitted if the head element is not
     # immediately followed by a space character or a comment.
@@ -163,11 +168,13 @@ describe Squoosh do
                  '<p></p>',
                  '<p></p> ',
                  '<p></p><!-- -->'] +
-                %w/address article aside blockquote div dl fieldset footer form
+                %w[address article aside blockquote div dl fieldset footer form
                    h1 h2 h3 h4 h5 h6 header hgroup main nav ol p pre section
-                   table ul/.flat_map { |t| ["<p></p><#{t}></#{t}>",
-                                             "<p></p> <#{t}></#{t}>",
-                                             "<p></p><!-- --><#{t}></#{t}>"] })
+                   table ul].flat_map do |t|
+                  ["<p></p><#{t}></#{t}>",
+                   "<p></p> <#{t}></#{t}>",
+                   "<p></p><!-- --><#{t}></#{t}>"]
+                end)
 
     keep '/p', ['<p></p><script></script>',
                 '<p></p> <script></script>',
@@ -211,19 +218,21 @@ describe Squoosh do
 
     # A thead element's end tag may be omitted if the thead element is
     # immediately followed by a tbody or tfoot element.
-    omit '/thead', ['<table><thead></thead><tbody></tbody></table>',
-                    '<table><thead></thead> <tbody></tbody></table>',
-                    '<table><thead></thead><!-- --><tbody></tbody></table>',
-                    '<table><thead></thead><tfoot></tfoot></table>',
-                    '<table><thead></thead> <tfoot></tfoot></table>',
-                    '<table><thead></thead><!-- --><tfoot></tfoot></table>']
+    omit '/thead',
+         ['<table><thead></thead><tbody></tbody></table>',
+          '<table><thead></thead> <tbody></tbody></table>',
+          '<table><thead></thead><!-- --><tbody></tbody></table>',
+          '<table><thead></thead><tfoot></tfoot></table>',
+          '<table><thead></thead> <tfoot></tfoot></table>',
+          '<table><thead></thead><!-- --><tfoot></tfoot></table>']
 
-    keep '/thead', ['<table><thead></thead><script></script></thead></table>',
-                    '<table><thead></thead> <script></script></thead></table>',
-                    '<table><thead></thead><!-- --><script></script></thead></table>',
-                    '<table><thead></thead></thead></table>',
-                    '<table><thead></thead> </thead></table>',
-                    '<table><thead></thead><!-- --></thead></table>']
+    keep '/thead',
+         ['<table><thead></thead><script></script></thead></table>',
+          '<table><thead></thead> <script></script></thead></table>',
+          '<table><thead></thead><!-- --><script></script></thead></table>',
+          '<table><thead></thead></thead></table>',
+          '<table><thead></thead> </thead></table>',
+          '<table><thead></thead><!-- --></thead></table>']
 
     # A tbody element's start tag may be omitted if the first thing inside the
     # tbody element is a tr element, and if the element is not immediately
@@ -231,14 +240,15 @@ describe Squoosh do
     # omitted. (It can't be omitted if the element is empty.)
     omit 'tbody', ['<table><tbody><tr></tr></tbody></table>']
 
-    keep 'tbody', ['<table><tbody> <tr></tr></tbody></table>',
-                   '<table><tbody><!-- --><tr></tr></tbody></table>',
-                   #'<table><tbody></tbody> <tbody><tr></tr></tbody></table>',
-                   #'<table><tbody></tbody><!-- --><tbody><tr></tr></tbody></table>',
-                   '<table><thead></thead> <tbody><tr></tr></tbody></table>',
-                   '<table><thead></thead><!-- --><tbody><tr></tr></tbody></table>',
-                   '<table><tfoot></tfoot> <tbody><tr></tr></tbody></table>',
-                   '<table><tfoot></tfoot><!-- --><tbody><tr></tr></tbody></table>']
+    keep 'tbody',
+         ['<table><tbody> <tr></tr></tbody></table>',
+          '<table><tbody><!-- --><tr></tr></tbody></table>',
+          # '<table><tbody></tbody> <tbody><tr></tr></tbody></table>',
+          # '<table><tbody></tbody><!-- --><tbody><tr></tr></tbody></table>',
+          '<table><thead></thead> <tbody><tr></tr></tbody></table>',
+          '<table><thead></thead><!-- --><tbody><tr></tr></tbody></table>',
+          '<table><tfoot></tfoot> <tbody><tr></tr></tbody></table>',
+          '<table><tfoot></tfoot><!-- --><tbody><tr></tr></tbody></table>']
 
     # A tbody element's end tag may be omitted if the tbody element is
     # immediately followed by a tbody or tfoot element, or if there is no more
@@ -250,7 +260,6 @@ describe Squoosh do
                     '<table><tbody></tbody><!-- --></table>']
 
     keep '/tbody', ['<table><tbody></tbody><script></script></table>']
-
 
     # A tfoot element's end tag may be omitted if the tfoot element is
     # immediately followed by a tbody element, or if there is no more content
@@ -290,12 +299,10 @@ describe Squoosh do
 
     keep '/th', ['<table><tr><th></th><script></script></table>']
 
-
     # Do not remove spaces between links.
     keep_spaces(['<p><a href=example.com>Foo</a> <a href=example.com>Bar</a>',
                  '<p>Foo <a href=example.com>Bar</a>',
                  '<p><a href=example.com>Foo</a> Bar'])
-
 
     context 'Compress style attribute in' do
       html = '<div style="clear:both"></div>'

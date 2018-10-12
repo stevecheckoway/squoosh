@@ -1,39 +1,31 @@
-# coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
+# frozen_string_literal: true
+
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'squoosh/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "squoosh"
+  spec.name          = 'squoosh'
   spec.version       = Squoosh::VERSION
-  spec.authors       = ["Stephen Checkoway"]
-  spec.email         = ["s@pahtak.org"]
+  spec.authors       = ['Stephen Checkoway']
+  spec.email         = ['s@pahtak.org']
 
-  spec.summary       = "Minify HTML/CSS/JavaScript files."
-  spec.homepage      = "https://github.com/stevecheckoway/squoosh"
-  spec.license       = "MIT"
-
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
-  end
-
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
+  spec.summary       = 'Minify HTML/CSS/JavaScript files.'
+  spec.homepage      = 'https://github.com/stevecheckoway/squoosh'
+  spec.license       = 'MIT'
+  spec.files         = %w[LICENSE.txt README.md] + Dir['lib/**/*.rb']
 
   spec.required_ruby_version = '~> 2.3'
 
-  spec.add_development_dependency "bundler"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec"
-  spec.add_development_dependency "simplecov"
+  spec.add_development_dependency 'bundler'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'yard'
 
-  spec.add_runtime_dependency "nokogumbo", "~> 2.0"
-  spec.add_runtime_dependency "sass"
-  spec.add_runtime_dependency "uglifier"
+  spec.add_runtime_dependency 'nokogumbo', '~> 2.0'
+  spec.add_runtime_dependency 'sass'
+  spec.add_runtime_dependency 'uglifier'
 end
+# vim: set sw=2 sts=2 ts=8 et:
