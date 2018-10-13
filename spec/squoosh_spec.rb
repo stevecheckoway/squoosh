@@ -18,6 +18,14 @@ KEEP_SPACES_OPTIONS = {
   minify_css: false
 }.freeze
 
+COMMENT_OPTIONS = {
+  omit_tags: true,
+  compress_spaces: false,
+  remove_comments: true,
+  minify_javascript: false,
+  minify_css: false
+}.freeze
+
 CSS_OPTIONS = {
   omit_tags: true,
   compress_spaces: false,
@@ -54,6 +62,18 @@ def keep_spaces(htmls)
       it html do
         html = '<!DOCTYPE html>' + html
         expect(Squoosh.minify_html(html, KEEP_SPACES_OPTIONS)).to eq html
+      end
+    end
+  end
+end
+
+def remove_comments(comment_start, htmls)
+  context 'remove comments in' do
+    htmls.each do |html|
+      it html do
+        html = '<!DOCTYPE html>' + html
+        expect(Squoosh.minify_html(html, COMMENT_OPTIONS))
+          .not_to match comment_start
       end
     end
   end
@@ -304,7 +324,54 @@ describe Squoosh do
                  '<p>Foo <a href=example.com>Bar</a>',
                  '<p><a href=example.com>Foo</a> Bar'])
 
-    context 'Compress style attribute in' do
+    # Remove non-loud comments
+    remove_comments('<!--',
+                    ['<!---->',
+                     '<!-- -->',
+                     '<body><!-- EOF',
+                     '</html><!---->',
+                     '</body><!-->',
+                     '<!--->',
+                     '<!-->'])
+    remove_comments('<\?', ['<?php echo "bogus comment"; ?>'])
+    remove_comments('</1337', ['</1337 bogus comment>'])
+
+    context 'keep loud comments in' do
+      html = '<!-- !LOUD! --><!-- quiet! -->'
+      it html do
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, COMMENT_OPTIONS))
+          .to eq '<!DOCTYPE html><!-- !LOUD! -->'
+      end
+    end
+
+    context 'keep comment-like text in' do
+      htmls = [['<title><!-- RCDATA --></title>',
+                '<title>&lt;!-- RCDATA --&gt;</title>'],
+               ['<script><!-- </script>-->',
+                '<script><!-- </script>--&gt;'],
+               ['<noframes><!-- RAWTEXT --></noframes>',
+                '<noframes><!-- RAWTEXT --></noframes>'],
+               ['<script><!-- --></script>',
+                '<script><!-- --></script>']]
+      htmls.each do |html|
+        it html[0] do
+          input = '<!DOCTYPE html>' + html[0]
+          output = '<!DOCTYPE html>' + html[1]
+          expect(Squoosh.minify_html(input, COMMENT_OPTIONS)).to eq output
+        end
+      end
+    end
+
+    context 'combine text nodes in' do
+      html = 'foo<!-- -->bar'
+      it html do
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, COMMENT_OPTIONS))
+          .to eq '<!DOCTYPE html>foobar'
+      end
+    end
+
+    # Inline styles
+    context 'compress style attribute in' do
       html = '<div style="clear:both"></div>'
       it html do
         expect(Squoosh.minify_html('<!DOCTYPE html>' + html, CSS_OPTIONS))
