@@ -15,12 +15,14 @@ Gem::Specification.new do |spec|
   spec.license       = 'MIT'
   spec.files         = %w[LICENSE.txt README.md] + Dir['lib/**/*.rb']
 
+  # rubocop:disable AlignHash
   spec.metadata      = {
     'bug_tracker_uri' => 'https://github.com/stevecheckoway/squoosh/issues',
     'changelog_uri'   => 'https://github.com/stevecheckoway/squoosh/blob/master/CHANGELOG.md',
     'homepage_uri'    => spec.homepage,
     'source_code_uri' => 'https://github.com/stevecheckoway/squoosh'
   }
+  # rubocop:enable AlignHash
 
   spec.required_ruby_version = '~> 2.3'
 
