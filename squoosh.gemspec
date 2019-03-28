@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'yard'
 
   spec.add_runtime_dependency 'nokogumbo', '~> 2.0'
-  spec.add_runtime_dependency 'sass', '~> 3.6'
+  spec.add_runtime_dependency 'sassc', '~> 2.0'
   spec.add_runtime_dependency 'uglifier', '~> 4.1'
 end
 # vim: set sw=2 sts=2 ts=8 et:

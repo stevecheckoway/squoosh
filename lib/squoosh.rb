@@ -2,7 +2,7 @@
 
 require 'squoosh/version'
 require 'nokogumbo'
-require 'sass'
+require 'sassc'
 require 'set'
 require 'uglifier'
 
@@ -44,8 +44,7 @@ module Squoosh
     # * ++uglifier_options++ Options to pass to
     #   {https://www.rubydoc.info/gems/uglifier Uglifier}
     # * ++sass_options++ Options to pass to
-    #   {http://sass-lang.com/documentation/file.SASS_REFERENCE.html#options
-    #   Sass}
+    #   {https://github.com/sass/sassc-ruby#readme Sassc}
     DEFAULT_OPTIONS = {
       remove_comments: true,
       omit_tags: true,
@@ -102,8 +101,7 @@ module Squoosh
     # @return [String] the minified CSS
     def minify_css(content)
       @css_cache[content] ||= begin
-        root = Sass::SCSS::CssParser.new(content, nil, nil).parse
-        root.options = @options[:sass_options]
+        root = SassC::Engine.new(content, @options[:sass_options])
         root.render.rstrip
       end
     end
