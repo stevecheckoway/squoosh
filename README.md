@@ -70,14 +70,20 @@ significantly speed up minifying HTML with repeated scripts and style sheets.
 Create a `_plugins/squoosh.rb` file with the contents
 
 ```ruby
-require 'squoosh'
+# frozen_string_literal: true
 
-Jekyll::Hooks.register [:documents, :pages], :post_render, priority: :high do |doc|
-  case File.extname(doc.destination('./'))
-  when '.html', '.htm'
-    doc.output = Squoosh::minify_html doc.output
-  when '.js'
-    doc.output = Squoosh::minify_js doc.output
+if Jekyll.env == 'deploy'
+  require 'squoosh'
+
+  squoosher = Squoosh::Squoosher.new
+  Jekyll::Hooks.register(%i[documents pages],
+                         :post_render, priority: :high) do |doc|
+    case File.extname(doc.destination('./'))
+    when '.html', '.htm'
+      doc.output = squoosher.minify_html(doc.output)
+    when '.js'
+      doc.output = squoosher.minify_js(doc.output)
+    end
   end
 end
 ```
