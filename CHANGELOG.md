@@ -7,19 +7,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [0.3.0] - 2019-08-22
+### Added
 - Tests for CSS minification
 - Tests for JavaScript minification
 - Tests for not omitting end tags when configured not to
 - Many other tests
 ### Changed
 - Updated Sassc to version 2.1
-### Deprecated
-### Removed
 ### Fixed
 - Fixed handling of leading newlines in `pre` and `textarea` elements
 - Do not emit an end tag after a self-closing tag
 - Do not emit `</script` inside of a `script` element
-### Security
 
 ## [0.2.1] - 2019-03-27
 ### Changed
