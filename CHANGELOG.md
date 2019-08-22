@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Tests for CSS minification
+- Tests for JavaScript minification
+- Tests for not omitting end tags when configured not to
+- Many other tests
 ### Changed
 - Updated Sassc to version 2.1
 ### Deprecated
