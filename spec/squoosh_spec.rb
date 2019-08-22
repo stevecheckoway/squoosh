@@ -74,12 +74,14 @@ JS_EOF
 
 JS_MATCH = 'alert(foo())'
 
+DOCTYPE = '<!DOCTYPE html>'
+
 def omit(tag, htmls)
   context "omit <#{tag}> in" do
     htmls.each do |html|
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html,
-                                   OMIT_TAG_OPTIONS)).not_to match "<#{tag}[ >]"
+        expect(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
+          .not_to match "<#{tag}[ >]"
       end
     end
   end
@@ -89,8 +91,8 @@ def keep(tag, htmls)
   context "keep <#{tag}> in" do
     htmls.each do |html|
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html,
-                                   OMIT_TAG_OPTIONS)).to match "<#{tag}[ >]"
+        expect(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
+          .to match "<#{tag}[ >]"
       end
     end
   end
@@ -101,7 +103,7 @@ def keep_spaces(htmls)
   context 'keep spaces in' do
     htmls.each do |html|
       it html do
-        html = '<!DOCTYPE html>' + html
+        html = DOCTYPE + html
         expect(Squoosh.minify_html(html, HTML_OPTIONS)).to eq html
       end
     end
@@ -112,7 +114,7 @@ def remove_comments(comment_start, htmls)
   context 'remove comments in' do
     htmls.each do |html|
       it html do
-        html = '<!DOCTYPE html>' + html
+        html = DOCTYPE + html
         expect(Squoosh.minify_html(html, COMMENT_OPTIONS))
           .not_to include comment_start
       end
@@ -370,8 +372,8 @@ describe Squoosh do
                 '<div><p>Foo<p>Bar</div>']]
       htmls.each do |html|
         it html[0] do
-          input = '<!DOCTYPE html>' + html[0]
-          output = '<!DOCTYPE html>' + html[1]
+          input = DOCTYPE + html[0]
+          output = DOCTYPE + html[1]
           expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
         end
       end
@@ -392,7 +394,7 @@ describe Squoosh do
     context 'keep loud comments in' do
       html = '<!-- !LOUD! --><!-- quiet! -->'
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, COMMENT_OPTIONS))
+        expect(Squoosh.minify_html(DOCTYPE + html, COMMENT_OPTIONS))
           .to eq '<!DOCTYPE html><!-- !LOUD! -->'
       end
     end
@@ -408,8 +410,8 @@ describe Squoosh do
                 '<script><!-- --></script>']]
       htmls.each do |html|
         it html[0] do
-          input = '<!DOCTYPE html>' + html[0]
-          output = '<!DOCTYPE html>' + html[1]
+          input = DOCTYPE + html[0]
+          output = DOCTYPE + html[1]
           expect(Squoosh.minify_html(input, COMMENT_OPTIONS)).to eq output
         end
       end
@@ -418,7 +420,7 @@ describe Squoosh do
     context 'combine text nodes in' do
       html = 'foo<!-- -->bar'
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, COMMENT_OPTIONS))
+        expect(Squoosh.minify_html(DOCTYPE + html, COMMENT_OPTIONS))
           .to eq '<!DOCTYPE html>foobar'
       end
     end
@@ -428,8 +430,8 @@ describe Squoosh do
                ['foo <!-- --> bar', 'foo bar']]
       htmls.each do |html|
         it html[0] do
-          input = '<!DOCTYPE html>' + html[0]
-          output = '<!DOCTYPE html>' + html[1]
+          input = DOCTYPE + html[0]
+          output = DOCTYPE + html[1]
           expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
         end
       end
@@ -472,8 +474,8 @@ describe Squoosh do
                ['<p data-model-target="">', '<p data-model-target>']]
       htmls.each do |html|
         it html[0] do
-          input = '<!DOCTYPE html>' + html[0]
-          output = '<!DOCTYPE html>' + html[1]
+          input = DOCTYPE + html[0]
+          output = DOCTYPE + html[1]
           expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
         end
       end
@@ -488,8 +490,8 @@ describe Squoosh do
                ['<math id="x y"></math>', '<math id="x y"/>']]
       htmls.each do |html|
         it html[0] do
-          input = '<!DOCTYPE html>' + html[0]
-          output = '<!DOCTYPE html>' + html[1]
+          input = DOCTYPE + html[0]
+          output = DOCTYPE + html[1]
           expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
         end
       end
@@ -499,7 +501,7 @@ describe Squoosh do
     context 'compress style attribute in' do
       html = '<div style="clear:both"></div>'
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, CSS_OPTIONS))
+        expect(Squoosh.minify_html(DOCTYPE + html, CSS_OPTIONS))
           .to include '<div style=clear:both>'
       end
     end
@@ -508,7 +510,7 @@ describe Squoosh do
     context 'compress style elements in' do
       html = "<style>\n#{W3SCHOOLS_CSS}\n</style>"
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, CSS_OPTIONS))
+        expect(Squoosh.minify_html(DOCTYPE + html, CSS_OPTIONS))
           .to include W3SCHOOLS_CSS_EXPECTED
       end
     end
@@ -520,7 +522,7 @@ describe Squoosh do
         html = "<p on#{event}='foo( 10 )'>"
         expected = "<!DOCTYPE html><p on#{event}=foo(10)>"
         it html do
-          expect(Squoosh.minify_html('<!DOCTYPE html>' + html, JS_OPTIONS))
+          expect(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS))
             .to eq expected
         end
       end
@@ -530,7 +532,7 @@ describe Squoosh do
     context 'compress script elements in' do
       html = "<script>#{JS}</script>"
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, JS_OPTIONS))
+        expect(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS))
           .to include JS_MATCH
       end
     end
@@ -539,7 +541,7 @@ describe Squoosh do
     context 'check for script string concatenation' do
       html = %(<p onclick='foo("</scr" + "ipt>")'>)
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, JS_OPTIONS))
+        expect(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS))
           .to include 'foo("</script>")'
       end
     end
@@ -548,7 +550,7 @@ describe Squoosh do
     context 'disallow </script> in script elements' do
       html = '<script>x="</scr" + "ipt>"</script>'
       it html do
-        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, JS_OPTIONS))
+        expect(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS))
           .not_to match(%r{<\/script>.*<\/script>})
       end
     end
