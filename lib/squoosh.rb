@@ -96,7 +96,7 @@ module Squoosh
       doc.children.map { |node| stringify_node(node) }.join
     end
 
-    # Minify CSS using Sass.
+    # Minify CSS using Sassc.
     #
     # @param content [String] the CSS to minify
     # @return [String] the minified CSS

@@ -5,7 +5,7 @@ Minifies HTML, JavaScript, and CSS, including inline JavaScript and CSS.
 [![Travis-CI Build
 Status](https://travis-ci.org/stevecheckoway/squoosh.svg)](https://travis-ci.org/stevecheckoway/squoosh)
 
-CSS minification is handled by [Sass](http://www.rubydoc.info/gems/sass)
+CSS minification is handled by [Sassc](http://www.rubydoc.info/gems/sassc)
 whereas JavaScript minification is handled by
 [Uglifier](http://www.rubydoc.info/gems/uglifier) which requires node.js.
 
@@ -17,7 +17,7 @@ nodes](https://html.spec.whatwg.org/multipage/dom.html#inter-element-whitespace)
 are removed from the DOM and semantically meaningfull runs of whitespace are
 compressed to single spaces, except in `pre`, `textarea`, and
 [foreign](https://html.spec.whatwg.org/multipage/syntax.html#elements-2) elements.
-Then, inline JavaScript and CSS are compressed using Sass and Uglifier.
+Then, inline JavaScript and CSS are compressed using Sassc and Uglifier.
 Finally, the DOM is serialized, compressing
 [attributes](https://html.spec.whatwg.org/multipage/syntax.html#attributes-2)
 where possible and omitting [optional start and end
