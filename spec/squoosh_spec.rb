@@ -379,7 +379,7 @@ describe Squoosh do
       end
     end
 
-    # Remove non-loud comments
+    # Remove non-loud comments.
     remove_comments('<!--',
                     ['<!---->',
                      '<!-- -->',
@@ -497,7 +497,7 @@ describe Squoosh do
       end
     end
 
-    # Inline styles
+    # Inline styles.
     context 'compress style attribute in' do
       html = '<div style="clear:both"></div>'
       it html do
@@ -506,7 +506,7 @@ describe Squoosh do
       end
     end
 
-    # style elements
+    # Style elements.
     context 'compress style elements in' do
       html = "<style>\n#{W3SCHOOLS_CSS}\n</style>"
       it html do
@@ -515,7 +515,7 @@ describe Squoosh do
       end
     end
 
-    # Event handlers
+    # Event handlers.
     context 'compress script in event handlers' do
       events = %w[click load blur]
       events.each do |event|
@@ -528,7 +528,7 @@ describe Squoosh do
       end
     end
 
-    # script elements
+    # Script elements.
     context 'compress script elements in' do
       html = "<script>#{JS}</script>"
       it html do
@@ -537,7 +537,7 @@ describe Squoosh do
       end
     end
 
-    # Check that "</scr" + "ipt>" is compressed to "</script>"
+    # Check that "</scr" + "ipt>" is compressed to "</script>"...
     context 'check for script string concatenation' do
       html = %(<p onclick='foo("</scr" + "ipt>")'>)
       it html do
@@ -546,7 +546,7 @@ describe Squoosh do
       end
     end
 
-    # except inside a script element
+    # ...except inside a script element.
     context 'disallow </script> in script elements' do
       html = '<script>x="</scr" + "ipt>"</script>'
       it html do
@@ -556,6 +556,7 @@ describe Squoosh do
     end
   end
 
+  # Minify CSS.
   describe '.minify_css' do
     context 'minify CSS via sassc' do
       it W3SCHOOLS_CSS do
@@ -565,6 +566,7 @@ describe Squoosh do
     end
   end
 
+  # Minify JavaScript.
   describe '.minify_js' do
     context 'minify JavaScript via uglifier'
     it JS do
