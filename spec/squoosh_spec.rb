@@ -34,6 +34,14 @@ CSS_OPTIONS = {
   minify_css: true
 }.freeze
 
+JS_OPTIONS = {
+  omit_tags: true,
+  compress_spaces: false,
+  remove_comments: false,
+  minify_javascript: true,
+  minify_css: false
+}.freeze
+
 W3SCHOOLS_CSS = <<~CSS_EOF
   .flex-container {
     display: flex;
@@ -54,6 +62,17 @@ CSS_EOF
 W3SCHOOLS_CSS_EXPECTED = '.flex-container{display:flex;flex-wrap:wrap;' \
   'background-color:DodgerBlue}.flex-container>div{background-color:#f1f1f1;' \
   'width:100px;margin:10px;text-align:center;line-height:75px;font-size:30px}'
+
+JS = <<~JS_EOF
+  function foo() {
+    document.getElementById('foo').innerHTML = "Hello world!";
+    return 10;
+  }
+  /* Alert! */
+  alert( foo() );
+JS_EOF
+
+JS_MATCH = 'alert(foo())'
 
 def omit(tag, htmls)
   context "omit <#{tag}> in" do
@@ -493,6 +512,46 @@ describe Squoosh do
           .to include W3SCHOOLS_CSS_EXPECTED
       end
     end
+
+    # Event handlers
+    context 'compress script in event handlers' do
+      events = %w[click load blur]
+      events.each do |event|
+        html = "<p on#{event}='foo( 10 )'>"
+        expected = "<!DOCTYPE html><p on#{event}=foo(10)>"
+        it html do
+          expect(Squoosh.minify_html('<!DOCTYPE html>' + html, JS_OPTIONS))
+            .to eq expected
+        end
+      end
+    end
+
+    # script elements
+    context 'compress script elements in' do
+      html = "<script>#{JS}</script>"
+      it html do
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, JS_OPTIONS))
+          .to include JS_MATCH
+      end
+    end
+
+    # Check that "</scr" + "ipt>" is compressed to "</script>"
+    context 'check for script string concatenation' do
+      html = %(<p onclick='foo("</scr" + "ipt>")'>)
+      it html do
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, JS_OPTIONS))
+          .to include 'foo("</script>")'
+      end
+    end
+
+    # except inside a script element
+    context 'disallow </script> in script elements' do
+      html = '<script>x="</scr" + "ipt>"</script>'
+      it html do
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, JS_OPTIONS))
+          .not_to match(%r{<\/script>.*<\/script>})
+      end
+    end
   end
 
   describe '.minify_css' do
@@ -501,6 +560,13 @@ describe Squoosh do
         expect(Squoosh.minify_css(W3SCHOOLS_CSS, CSS_OPTIONS))
           .to eq W3SCHOOLS_CSS_EXPECTED
       end
+    end
+  end
+
+  describe '.minify_js' do
+    context 'minify JavaScript via uglifier'
+    it JS do
+      expect(Squoosh.minify_js(JS, JS_OPTIONS)).to include JS_MATCH
     end
   end
 end

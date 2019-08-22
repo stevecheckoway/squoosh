@@ -74,6 +74,7 @@ module Squoosh
       end
       @options = DEFAULT_OPTIONS.merge(options)
       @js_cache = {}
+      @inline_script_cache = {}
       @css_cache = {}
     end
 
@@ -111,8 +112,7 @@ module Squoosh
     # @param content [String] the JavaScript to minify
     # @return [String] the minified JavaScript
     def minify_js(content)
-      @js_cache[content] ||= \
-        Uglifier.compile(content, @options[:uglifier_options])
+      @js_cache[content] ||= uglify(content, @options[:uglifier_options])
     end
 
     # Element kinds
@@ -123,6 +123,13 @@ module Squoosh
     FOREIGN_ELEMENTS = Set.new(%w[math svg]).freeze
     private_constant :VOID_ELEMENTS, :RAW_TEXT_ELEMENTS
     private_constant :ESCAPABLE_RAW_TEXT_ELEMENTS, :FOREIGN_ELEMENTS
+
+    INLINE_SCRIPT_OPTIONS = {
+      output: {
+        inline_script: true
+      }
+    }.freeze
+    private_constant :INLINE_SCRIPT_OPTIONS
 
     private
 
@@ -228,13 +235,31 @@ module Squoosh
     ).freeze
     private_constant :EVENT_HANDLERS_XPATH
 
+    def uglify(content, options)
+      js = Uglifier.compile(content, options)
+      js.chomp!(';')
+      js
+    end
+
+    def compress_script(content)
+      @inline_script_cache[content] ||= begin
+        options = @options[:uglifier_options].merge(INLINE_SCRIPT_OPTIONS)
+        uglify(content, options)
+      end
+    end
+
+    def compress_event_handler(content)
+      @event_handler_cache[content] ||= \
+        Uglifier.compile(content, @options[:uglifier_options])
+    end
+
     def compress_javascript(doc)
       # Compress script elements.
       doc.xpath('//script[not(ancestor::math or ancestor::svg)]').each do |node|
         type = node['type']&.downcase
         next unless type.nil? || type == 'text/javascript'
 
-        node.content = minify_js node.content
+        node.content = compress_script(node.content)
       end
       # Compress event handlers.
       doc.xpath(EVENT_HANDLERS_XPATH).each do |attr|
@@ -368,6 +393,7 @@ module Squoosh
       # If we're not omitting end tags, then don't mark foreign elements as
       # self closing.
       return false unless @options[:omit_tags]
+
       foreign_element?(node) && node.children.empty?
     end
 
