@@ -272,15 +272,7 @@ module Squoosh
         end
       elsif node.element? &&
             (node.name == 'pre' || node.name == 'textarea')
-        # Remove leading newline in pre and textarea tags unless there are two
-        # in a row.
-        if node.children[0]&.text?
-          content = node.children[0].content
-          if content.sub!(/\A\r\n?([^\r]|\z)/, '\1') ||
-             content.sub!(/\A\n([^\n]|\z)/, '\1')
-            node.children[0].content = content
-          end
-        end
+        # Leave the contents of these nodes alone.
       elsif normal_element?(node) || node.name == 'title'
         # Compress spaces in normal elements and title.
         node.children.each { |c| compress_spaces c }
@@ -352,6 +344,16 @@ module Squoosh
           output << '/'
         end
         output << '>'
+      end
+
+      # If pre or textarea start with a newline, double it because the HTML
+      # parser strips leading newlines.
+      if (node.name == 'pre' || node.name == 'textarea') &&
+         !node.children.empty?
+        first_child = node.children[0]
+        if first_child.text? && first_child.content.start_with?("\n")
+          output << "\n"
+        end
       end
 
       # Add content.

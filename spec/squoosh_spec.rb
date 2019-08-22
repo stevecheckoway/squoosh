@@ -10,7 +10,7 @@ OMIT_TAG_OPTIONS = {
   minify_css: false
 }.freeze
 
-KEEP_SPACES_OPTIONS = {
+COMPRESS_SPACES_OPTIONS = {
   omit_tags: true,
   compress_spaces: true,
   remove_comments: false,
@@ -61,7 +61,7 @@ def keep_spaces(htmls)
     htmls.each do |html|
       it html do
         html = '<!DOCTYPE html>' + html
-        expect(Squoosh.minify_html(html, KEEP_SPACES_OPTIONS)).to eq html
+        expect(Squoosh.minify_html(html, COMPRESS_SPACES_OPTIONS)).to eq html
       end
     end
   end
@@ -367,6 +367,35 @@ describe Squoosh do
       it html do
         expect(Squoosh.minify_html('<!DOCTYPE html>' + html, COMMENT_OPTIONS))
           .to eq '<!DOCTYPE html>foobar'
+      end
+    end
+
+    # A single newline may be placed immediately after the start tag of pre
+    # and textarea elements. This does not affect the processing of the
+    # element. The otherwise optional newline must be included if the
+    # element's contents themselves start with a newline (because otherwise
+    # the leading newline in the contents would be treated like the optional
+    # newline, and ignored).
+    context 'keep two newlines at start of' do
+      elms = %w[pre textarea]
+      elms.each do |elm|
+        it elm do
+          html = "<!DOCTYPE html><#{elm}>\n\nFoo\n</#{elm}>"
+          expect(Squoosh.minify_html(html, COMPRESS_SPACES_OPTIONS))
+            .to eq html
+        end
+      end
+    end
+
+    context 'remove single newline at start of' do
+      elms = %w[pre textarea]
+      elms.each do |elm|
+        it elm do
+          input = "<!DOCTYPE html><#{elm}>\nFoo\n</#{elm}>"
+          output = "<!DOCTYPE html><#{elm}>Foo\n</#{elm}>"
+          expect(Squoosh.minify_html(input, COMPRESS_SPACES_OPTIONS))
+            .to eq output
+        end
       end
     end
 
