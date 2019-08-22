@@ -54,7 +54,7 @@ Or install it yourself as:
 ## Usage
 
 You can read the documentation
-[here](https://www.rubydoc.info/github/stevecheckoway/squoosh/v0.2.0).
+[here](https://www.rubydoc.info/github/stevecheckoway/squoosh/).
 
 The three basic minification functions are
 
