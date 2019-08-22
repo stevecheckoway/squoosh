@@ -13,7 +13,7 @@ OMIT_TAG_OPTIONS = {
 COMPRESS_SPACES_OPTIONS = {
   omit_tags: true,
   compress_spaces: true,
-  remove_comments: false,
+  remove_comments: true,
   minify_javascript: false,
   minify_css: false
 }.freeze
@@ -33,6 +33,27 @@ CSS_OPTIONS = {
   minify_javascript: false,
   minify_css: true
 }.freeze
+
+W3SCHOOLS_CSS = <<-CSS_EOF
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: DodgerBlue;
+}
+
+.flex-container > div {
+  background-color: #f1f1f1;
+  width: 100px;
+  margin: 10px;
+  text-align: center;
+  line-height: 75px;
+  font-size: 30px;
+}
+CSS_EOF
+
+W3SCHOOLS_CSS_EXPECTED = '.flex-container{display:flex;flex-wrap:wrap;' \
+  'background-color:DodgerBlue}.flex-container>div{background-color:#f1f1f1;' \
+  'width:100px;margin:10px;text-align:center;line-height:75px;font-size:30px}'
 
 def omit(tag, htmls)
   context "omit <#{tag}> in" do
@@ -56,6 +77,7 @@ def keep(tag, htmls)
   end
 end
 
+# Ensure that the spaces remain, even after being compressed.
 def keep_spaces(htmls)
   context 'keep spaces in' do
     htmls.each do |html|
@@ -324,6 +346,19 @@ describe Squoosh do
                  '<p>Foo <a href=example.com>Bar</a>',
                  '<p><a href=example.com>Foo</a> Bar'])
 
+    context 'remove spaces between elements in' do
+      htmls = [['<div> <p> Foo <p> Bar </div>',
+                '<div><p>Foo<p>Bar</div>']]
+      htmls.each do |html|
+        it html[0] do
+          input = '<!DOCTYPE html>' + html[0]
+          output = '<!DOCTYPE html>' + html[1]
+          expect(Squoosh.minify_html(input, COMPRESS_SPACES_OPTIONS))
+            .to eq output
+        end
+      end
+    end
+
     # Remove non-loud comments
     remove_comments('<!--',
                     ['<!---->',
@@ -370,6 +405,19 @@ describe Squoosh do
       end
     end
 
+    context 'combine space nodes in' do
+      htmls = [['foo &#x20; bar', 'foo bar'],
+               ['foo <!-- --> bar', 'foo bar']]
+      htmls.each do |html|
+        it html[0] do
+          input = '<!DOCTYPE html>' + html[0]
+          output = '<!DOCTYPE html>' + html[1]
+          expect(Squoosh.minify_html(input, COMPRESS_SPACES_OPTIONS))
+            .to eq output
+        end
+      end
+    end
+
     # A single newline may be placed immediately after the start tag of pre
     # and textarea elements. This does not affect the processing of the
     # element. The otherwise optional newline must be included if the
@@ -405,6 +453,24 @@ describe Squoosh do
       it html do
         expect(Squoosh.minify_html('<!DOCTYPE html>' + html, CSS_OPTIONS))
           .to match '<div style=clear:both>'
+      end
+    end
+
+    # style elements
+    context 'compress style elements in' do
+      html = "<style>\n#{W3SCHOOLS_CSS}\n</style>"
+      it html do
+        expect(Squoosh.minify_html('<!DOCTYPE html>' + html, CSS_OPTIONS))
+          .to match W3SCHOOLS_CSS_EXPECTED
+      end
+    end
+  end
+
+  describe '.minifiy_css' do
+    context 'minify CSS via sassc' do
+      it W3SCHOOLS_CSS do
+        expect(Squoosh.minify_css(W3SCHOOLS_CSS, CSS_OPTIONS))
+          .to eq W3SCHOOLS_CSS_EXPECTED
       end
     end
   end
