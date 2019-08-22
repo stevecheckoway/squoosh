@@ -2,5 +2,5 @@
 
 module Squoosh
   # The version of squoosh.
-  VERSION = '0.2.1'
+  VERSION = '0.2.2'
 end

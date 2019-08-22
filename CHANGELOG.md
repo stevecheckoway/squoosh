@@ -8,10 +8,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 ### Changed
+- Updated Sassc to version 2.1
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
+
+## [0.2.1] - 2019-03-27
+### Changed
+- Switched from deprecated Sass gem to Sassc
 
 ## [0.2.0] - 2018-10-12
 ### Added
