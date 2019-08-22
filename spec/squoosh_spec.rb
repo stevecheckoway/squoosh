@@ -495,7 +495,7 @@ describe Squoosh do
     end
   end
 
-  describe '.minifiy_css' do
+  describe '.minify_css' do
     context 'minify CSS via sassc' do
       it W3SCHOOLS_CSS do
         expect(Squoosh.minify_css(W3SCHOOLS_CSS, CSS_OPTIONS))
