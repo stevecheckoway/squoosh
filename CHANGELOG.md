@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 ### Fixed
 - Fixed handling of leading newlines in `pre` and `textarea` elements
+- Do not emit an end tag after a self-closing tag
 ### Security
 
 ## [0.2.1] - 2019-03-27

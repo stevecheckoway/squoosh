@@ -460,6 +460,22 @@ describe Squoosh do
       end
     end
 
+    context 'compress empty, self-closing elements in' do
+      htmls = [['<svg></svg>', '<svg/>'],
+               ['<svg id="foo"></svg>', '<svg id=foo />'],
+               ['<svg id="x y"></svg>', '<svg id="x y"/>'],
+               ['<math></math>', '<math/>'],
+               ['<math id="foo"></math>', '<math id=foo />'],
+               ['<math id="x y"></math>', '<math id="x y"/>']]
+      htmls.each do |html|
+        it html[0] do
+          input = '<!DOCTYPE html>' + html[0]
+          output = '<!DOCTYPE html>' + html[1]
+          expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
+        end
+      end
+    end
+
     # Inline styles
     context 'compress style attribute in' do
       html = '<div style="clear:both"></div>'

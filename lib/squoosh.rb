@@ -339,7 +339,7 @@ module Squoosh
         end
 
         # Close start tag.
-        if node_is_self_closing? node
+        if self_closing? node
           output << ' ' if last_attr_unquoted
           output << '/'
         end
@@ -364,7 +364,10 @@ module Squoosh
       output.string
     end
 
-    def node_is_self_closing?(node)
+    def self_closing?(node)
+      # If we're not omitting end tags, then don't mark foreign elements as
+      # self closing.
+      return false unless @options[:omit_tags]
       foreign_element?(node) && node.children.empty?
     end
 
@@ -438,7 +441,7 @@ module Squoosh
     end
 
     def omit_end_tag?(node)
-      return true if void_element? node
+      return true if void_element?(node) || self_closing?(node)
       return false unless @options[:omit_tags]
       return false if node.parent.name == 'noscript'
 
