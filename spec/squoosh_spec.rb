@@ -10,17 +10,17 @@ OMIT_TAG_OPTIONS = {
   minify_css: false
 }.freeze
 
-COMPRESS_SPACES_OPTIONS = {
+COMMENT_OPTIONS = {
   omit_tags: true,
-  compress_spaces: true,
+  compress_spaces: false,
   remove_comments: true,
   minify_javascript: false,
   minify_css: false
 }.freeze
 
-COMMENT_OPTIONS = {
+HTML_OPTIONS = {
   omit_tags: true,
-  compress_spaces: false,
+  compress_spaces: true,
   remove_comments: true,
   minify_javascript: false,
   minify_css: false
@@ -34,21 +34,21 @@ CSS_OPTIONS = {
   minify_css: true
 }.freeze
 
-W3SCHOOLS_CSS = <<-CSS_EOF
-.flex-container {
-  display: flex;
-  flex-wrap: wrap;
-  background-color: DodgerBlue;
-}
+W3SCHOOLS_CSS = <<~CSS_EOF
+  .flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: DodgerBlue;
+  }
 
-.flex-container > div {
-  background-color: #f1f1f1;
-  width: 100px;
-  margin: 10px;
-  text-align: center;
-  line-height: 75px;
-  font-size: 30px;
-}
+  .flex-container > div {
+    background-color: #f1f1f1;
+    width: 100px;
+    margin: 10px;
+    text-align: center;
+    line-height: 75px;
+    font-size: 30px;
+  }
 CSS_EOF
 
 W3SCHOOLS_CSS_EXPECTED = '.flex-container{display:flex;flex-wrap:wrap;' \
@@ -83,7 +83,7 @@ def keep_spaces(htmls)
     htmls.each do |html|
       it html do
         html = '<!DOCTYPE html>' + html
-        expect(Squoosh.minify_html(html, COMPRESS_SPACES_OPTIONS)).to eq html
+        expect(Squoosh.minify_html(html, HTML_OPTIONS)).to eq html
       end
     end
   end
@@ -353,8 +353,7 @@ describe Squoosh do
         it html[0] do
           input = '<!DOCTYPE html>' + html[0]
           output = '<!DOCTYPE html>' + html[1]
-          expect(Squoosh.minify_html(input, COMPRESS_SPACES_OPTIONS))
-            .to eq output
+          expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
         end
       end
     end
@@ -412,8 +411,7 @@ describe Squoosh do
         it html[0] do
           input = '<!DOCTYPE html>' + html[0]
           output = '<!DOCTYPE html>' + html[1]
-          expect(Squoosh.minify_html(input, COMPRESS_SPACES_OPTIONS))
-            .to eq output
+          expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
         end
       end
     end
@@ -429,8 +427,7 @@ describe Squoosh do
       elms.each do |elm|
         it elm do
           html = "<!DOCTYPE html><#{elm}>\n\nFoo\n</#{elm}>"
-          expect(Squoosh.minify_html(html, COMPRESS_SPACES_OPTIONS))
-            .to eq html
+          expect(Squoosh.minify_html(html, HTML_OPTIONS)).to eq html
         end
       end
     end
@@ -441,8 +438,24 @@ describe Squoosh do
         it elm do
           input = "<!DOCTYPE html><#{elm}>\nFoo\n</#{elm}>"
           output = "<!DOCTYPE html><#{elm}>Foo\n</#{elm}>"
-          expect(Squoosh.minify_html(input, COMPRESS_SPACES_OPTIONS))
-            .to eq output
+          expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
+        end
+      end
+    end
+
+    context 'compress attributes in' do
+      htmls = [[%(<a  id="bare"  href='/foo'  ></a>),
+                '<a id=bare href=/foo></a>'],
+               [%(<p id='"quotes"'>), %(<p id='"quotes"'>)],
+               [%(<p id="&quot;x&quot;">), %(<p id='"x"'>)],
+               [%(<p id='&apos;x&apos;'>), %(<p id="'x'">)],
+               [%(<p id="&quot;x&apos;">), %(<p id="&#34;x'">)],
+               ['<p data-model-target="">', '<p data-model-target>']]
+      htmls.each do |html|
+        it html[0] do
+          input = '<!DOCTYPE html>' + html[0]
+          output = '<!DOCTYPE html>' + html[1]
+          expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
         end
       end
     end
