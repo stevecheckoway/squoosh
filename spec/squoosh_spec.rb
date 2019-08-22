@@ -95,7 +95,7 @@ def remove_comments(comment_start, htmls)
       it html do
         html = '<!DOCTYPE html>' + html
         expect(Squoosh.minify_html(html, COMMENT_OPTIONS))
-          .not_to match comment_start
+          .not_to include comment_start
       end
     end
   end
@@ -481,7 +481,7 @@ describe Squoosh do
       html = '<div style="clear:both"></div>'
       it html do
         expect(Squoosh.minify_html('<!DOCTYPE html>' + html, CSS_OPTIONS))
-          .to match '<div style=clear:both>'
+          .to include '<div style=clear:both>'
       end
     end
 
@@ -490,7 +490,7 @@ describe Squoosh do
       html = "<style>\n#{W3SCHOOLS_CSS}\n</style>"
       it html do
         expect(Squoosh.minify_html('<!DOCTYPE html>' + html, CSS_OPTIONS))
-          .to match W3SCHOOLS_CSS_EXPECTED
+          .to include W3SCHOOLS_CSS_EXPECTED
       end
     end
   end
