@@ -10,6 +10,14 @@ OMIT_TAG_OPTIONS = {
   minify_css: false
 }.freeze
 
+NO_OMIT_TAG_OPTIONS = {
+  omit_tags: false,
+  compress_spaces: false,
+  remove_comments: false,
+  minify_javascript: false,
+  minify_css: false
+}.freeze
+
 COMMENT_OPTIONS = {
   omit_tags: true,
   compress_spaces: false,
@@ -92,6 +100,17 @@ def keep(tag, htmls)
     htmls.each do |html|
       it html do
         expect(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
+          .to match "<#{tag}[ >]"
+      end
+    end
+  end
+end
+
+def no_omit(tag, htmls)
+  context "do not omit <#{tag}> in" do
+    htmls.each do |html|
+      it html do
+        expect(Squoosh.minify_html(DOCTYPE + html, NO_OMIT_TAG_OPTIONS))
           .to match "<#{tag}[ >]"
       end
     end
@@ -553,6 +572,19 @@ describe Squoosh do
         expect(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS))
           .not_to match(%r{<\/script>.*<\/script>})
       end
+    end
+
+    # Make sure we keep tags when we aren't omitting them.
+    context 'while not omitting tags' do
+      no_omit('html', ['<!-- -->', '<head>', '<body>'])
+      no_omit('/html', ['<!-- -->', '<head>', '<body>'])
+      no_omit('head', ['<meta>', '<script></script>'])
+      no_omit('/head', ['<meta>', '<script></script>'])
+      no_omit('body', ['<div></div>', '<p>hi<p>there'])
+      no_omit('/body', ['<div></div>', '<p>hi<p>there'])
+      no_omit('/p', ['<p>foo', '<p>foo<h1>bar</h1>'])
+      no_omit('/svg', ['<svg/>', '<svg></svg>', '<svg id=x></svg>'])
+      no_omit('/math', ['<math/>', '<math></math>', '<math id=x></math>'])
     end
   end
 
