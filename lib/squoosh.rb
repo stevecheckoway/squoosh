@@ -248,11 +248,6 @@ module Squoosh
       end
     end
 
-    def compress_event_handler(content)
-      @event_handler_cache[content] ||= \
-        Uglifier.compile(content, @options[:uglifier_options])
-    end
-
     def compress_javascript(doc)
       # Compress script elements.
       doc.xpath('//script[not(ancestor::math or ancestor::svg)]').each do |node|
