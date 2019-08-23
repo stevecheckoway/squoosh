@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 ### Security
 
+## [0.3.1] - 2019-08-23
+### Fixed
+- Preserve attribute namespaces in foreign elements (`svg`, `math`)
+
 ## [0.3.0] - 2019-08-22
 ### Added
 - Tests for CSS minification
