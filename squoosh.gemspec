@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   }
   # rubocop:enable AlignHash
 
-  spec.required_ruby_version = '~> 2.3'
+  spec.required_ruby_version = '~> 2.4'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake'
