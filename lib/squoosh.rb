@@ -340,7 +340,8 @@ module Squoosh
 
         # Add attributes. 8.1.2.3
         last_attr_unquoted = false
-        node.attributes.each do |name, attr|
+        node.attribute_nodes.each do |attr|
+          name = qualified_attribute_name(attr)
           last_attr_unquoted = false
           # Make sure there are no character references.
           # XXX: We should be able to compress a bit more by leaving bare & in
@@ -387,6 +388,24 @@ module Squoosh
       # Add end tag. 8.1.2.2
       output << "</#{node.name}>" unless omit_end_tag? node
       output.string
+    end
+
+    def qualified_attribute_name(attr)
+      ns = attr.namespace
+      return attr.name if ns.nil?
+
+      uri = ns.href
+      if uri == Nokogiri::HTML5::XML_NAMESPACE
+        'xml:' + attr.name
+      elsif uri == Nokogiri::HTML5::XMLNS_NAMESPACE && attr.name == 'xmlns'
+        'xmlns'
+      elsif uri == Nokogiri::HTML5::XMLNS_NAMESPACE
+        'xmlns:' + attr.name
+      elsif uri == Nokogiri::HTML5::XLINK_NAMESPACE
+        'xlink:' + attr.name
+      else
+        raise 'Unreachable!'
+      end
     end
 
     def self_closing?(node)

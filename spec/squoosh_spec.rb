@@ -586,6 +586,29 @@ describe Squoosh do
       no_omit('/svg', ['<svg/>', '<svg></svg>', '<svg id=x></svg>'])
       no_omit('/math', ['<math/>', '<math></math>', '<math id=x></math>'])
     end
+
+    # Namespaced attributes in foreign elements.
+    context 'preserve attribute namespaces in' do
+      svg = <<~SVG_EOF
+        <svg height="30" width="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+          <a xlink:href="https://example.com">
+            <text x="0" y="15" fill="red">Example</text>
+          </a>
+        </svg>
+      SVG_EOF
+      it svg do
+        expect(Squoosh.minify_html(DOCTYPE + svg, HTML_OPTIONS))
+          .to include(' xmlns=http://www.w3.org/2000/svg')
+          .and include(' xmlns:xlink=http://www.w3.org/1999/xlink')
+          .and include(' xlink:href=https://example.com')
+      end
+
+      math = '<math><mi xml:lang=en xlink:href=foo></mi></math>'
+      it math do
+        expect(Squoosh.minify_html(DOCTYPE + math, HTML_OPTIONS))
+          .to eq(DOCTYPE + math)
+      end
+    end
   end
 
   # Minify CSS.
