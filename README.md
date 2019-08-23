@@ -32,8 +32,17 @@ Squoosh will not minify
 
 - HTML 4 and earlier;
 - XHTML, any version;
-- [MathML](https://www.w3.org/TR/MathML3/) elements; nor
-- [SVG](https://www.w3.org/TR/SVG11/) elements.
+- spaces in [MathML](https://www.w3.org/TR/MathML3/) elements; nor
+- spaces in [SVG](https://www.w3.org/TR/SVG11/) elements.
+
+HTML 4 and XHTML documents (more precisely, any document that does not have an
+HTML 5 DOCTYPE, typically `<!DOCTYPE html>`) is returned unchanged by
+`Squoosh::minify_html`.
+
+MathML and SVG elements have their tags minified (including compressing
+attributes and serializing empty elements as self-closing start tags) and
+comments inside them are removed. White space is preserved (except for the
+newline normalization performed by the HTML 5 parser).
 
 ## Installation
 
@@ -54,7 +63,7 @@ Or install it yourself as:
 ## Usage
 
 You can read the documentation
-[here](https://www.rubydoc.info/github/stevecheckoway/squoosh/).
+[here](https://www.rubydoc.info/gems/squoosh/).
 
 The three basic minification functions are
 
