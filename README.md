@@ -1,9 +1,11 @@
+[![Travis-CI Build
+Status](https://travis-ci.org/stevecheckoway/squoosh.svg)](https://travis-ci.org/stevecheckoway/squoosh)
+[![Coverage
+Status](https://coveralls.io/repos/github/stevecheckoway/squoosh/badge.svg?branch=master)](https://coveralls.io/github/stevecheckoway/squoosh?branch=master)
+
 # Squoosh
 
 Minifies HTML, JavaScript, and CSS, including inline JavaScript and CSS.
-
-[![Travis-CI Build
-Status](https://travis-ci.org/stevecheckoway/squoosh.svg)](https://travis-ci.org/stevecheckoway/squoosh)
 
 CSS minification is handled by [Sassc](http://www.rubydoc.info/gems/sassc)
 whereas JavaScript minification is handled by
