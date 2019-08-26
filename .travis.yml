@@ -1,10 +1,20 @@
-sudo: false
+cache: bundler
 language: ruby
+sudo: false
+
 os:
   - osx
   - linux
+
 rvm:
   - 2.4
   - 2.5
   - 2.6
-cache: bundler
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bundle exec rake coveralls:push
+  on:
+    branch: master
+    condition: "$TRAVIS_OS_NAME" = linux
