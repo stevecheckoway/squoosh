@@ -18,6 +18,7 @@ before_install:
 deploy:
   skip_cleanup: true
   provider: script
-  script: 'bundle exec rake coveralls:push'
+  script: 'gem update --system && gem install bundler && bundle exec rake coveralls:push'
   on:
     branch: master
+    condition: $TRAVIS_RUBY_VERSION = 2.6 && $TRAVIS_OS_NAME = linux
