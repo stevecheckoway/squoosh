@@ -399,7 +399,9 @@ module Squoosh
       elsif uri == Nokogiri::HTML5::XLINK_NAMESPACE
         'xlink:' + attr.name
       else
+        # :nocov:
         raise 'Unreachable!'
+        # :nocov:
       end
     end
 
@@ -450,7 +452,7 @@ module Squoosh
 
         prev_elm = node.previous_element
         return prev_elm.nil? ||
-               prev_elm.name != 'col' ||
+               prev_elm.name != 'colgroup' ||
                !omit_end_tag?(prev_elm)
 
       when 'tbody'
@@ -576,9 +578,10 @@ module Squoosh
       when 'colgroup'
         # A colgroup element's end tag may be omitted if the colgroup element is
         # not immediately followed by a space character or a comment.
-        return next_node.nil? ||
-               (next_node.text? && !next_node.content.start_with(' ')) ||
-               !next_node.comment?
+        return true if next_node.nil?
+        return !next_node.content.start_with?(' ') if next_node.text?
+
+        return !next_node.comment?
 
       when 'thead'
         # A thead element's end tag may be omitted if the thead element is

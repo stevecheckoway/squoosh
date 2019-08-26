@@ -294,9 +294,32 @@ describe Squoosh do
     # the colgroup element is a col element, and if the element is not
     # immediately preceded by another colgroup element whose end tag has been
     # omitted. (It can't be omitted if the element is empty.)
+    omit 'colgroup',
+         ['<table><colgroup><col><col></colgroup></table>']
+
+    keep 'colgroup',
+         ['<table><colgroup><!-- --><col><col></colgroup></table>',
+          '<table><colgroup><!-- --></colgroup>',
+          '<table><colgroup> </colgroup>',
+          '<table><colgroup></colgroup>']
 
     # A colgroup element's end tag may be omitted if the colgroup element is
     # not immediately followed by a space character or a comment.
+    omit '/colgroup',
+         ['<table><colgroup><col></colgroup><tr></tr></table>']
+
+    keep '/colgroup',
+         ['<table><colgroup><col></colgroup> <tr></tr></table>',
+          '<table><colgroup><col></colgroup><!-- --></table>']
+
+    context 'keep second colgroup\'s start tag' do
+      html = '<table><colgroup><col></colgroup>' \
+        '<colgroup><col></colgroup></table>'
+      it html do
+        expect(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
+          .to eq(DOCTYPE + '<table><col><colgroup><col></table>')
+      end
+    end
 
     # A thead element's end tag may be omitted if the thead element is
     # immediately followed by a tbody or tfoot element.
@@ -626,6 +649,18 @@ describe Squoosh do
     context 'minify JavaScript via uglifier'
     it JS do
       expect(Squoosh.minify_js(JS, JS_OPTIONS)).to include JS_MATCH
+    end
+  end
+
+  describe 'Squoosher' do
+    describe '.new' do
+      context 'throw on invalid option' do
+        options = { foobar: true }
+        it options do
+          expect { Squoosh::Squoosher.new(options) }
+            .to raise_error(ArgumentError)
+        end
+      end
     end
   end
 end
