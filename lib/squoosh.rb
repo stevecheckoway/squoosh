@@ -491,6 +491,11 @@ module Squoosh
       node.nil? || (node.element? && elements.include?(node.name))
     end
 
+    def next_is_one_of?(node, elements)
+      node = next_content_node(node)
+      node&.element? && elements.include?(node.name)
+    end
+
     def parent_contains_more_content?(node)
       !next_content_node(node).nil?
     end
@@ -524,33 +529,36 @@ module Squoosh
         # An li element's end tag may be omitted if the li element is
         # immediately followed by another li element or if there is no more
         # content in the parent element.
-        return next_elm&.name == 'li' || !parent_contains_more_content?(node)
+        return next_is_nil_or_one_of?(node, ['li'])
 
       when 'dt'
         # A dt element's end tag may be omitted if the dt element is immediately
         # followed by another dt element or a dd element.
-        return %w[dt dd].include? next_elm&.name
+        return next_is_one_of?(node, %w[dt dd])
 
       when 'dd'
         # A dd element's end tag may be omitted if the dd element is immediately
         # followed by another dd element or a dt element, or if there is no more
         # content in the parent element.
-        return %w[dt dd].include?(next_elm&.name) ||
-               !parent_contains_more_content?(node)
+        return next_is_nil_or_one_of?(node, %w[dt dd])
 
       when 'p'
-        # A p element's end tag may be omitted if the p element is immediately
-        # followed by an address, article, aside, blockquote, div, dl,
-        # fieldset, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr,
-        # main, nav, ol, p, pre, section, table, or ul, element, or if there
-        # is no more content in the parent element and the parent element is
-        # not an a element.
-        return true if %w[address article aside blockquote div dl
-                          fieldset footer form h1 h2 h3 h4
-                          h5 h6 header hgroup hr main nav ol
-                          p pre section table ul].include? next_elm&.name
-
-        return node.parent.name != 'a' && !parent_contains_more_content?(node)
+        # A p element's end tag can be omitted if the p element is immediately
+        # followed by an address, article, aside, blockquote, details, div,
+        # dl, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5,
+        # h6, header, hgroup, hr, main, menu, nav, ol, p, pre, section, table,
+        # or ul element, or if there is no more content in the parent element
+        # and the parent element is an HTML element that is not an a, audio,
+        # del, ins, map, noscript, or video element, or an autonomous custom
+        # element.
+        return true if next_is_one_of?(node, %w[
+          address article aside blockquote details div dl fieldset figcaption
+          figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr main menu nav
+          ol p pre section table ul
+        ])
+        return false if foreign_element?(node.parent)
+        return !parent_contains_more_content?(node) &&
+               !%[a audio del ins map noscript video].include?(node.parent.name)
 
       when 'rb', 'rt', 'rp'
         # An rb element's end tag may be omitted if the rb element is
@@ -598,21 +606,18 @@ module Squoosh
       when 'thead'
         # A thead element's end tag may be omitted if the thead element is
         # immediately followed by a tbody or tfoot element.
-        return %w[tbody tfoot].include? next_elm&.name
+        return next_is_one_of?(node, %w[tbody tfoot])
 
       when 'tbody'
         # A tbody element's end tag may be omitted if the tbody element is
         # immediately followed by a tbody or tfoot element, or if there is no
         # more content in the parent element.
-        return %w[tbody tfoot].include?(next_elm&.name) ||
-               !parent_contains_more_content?(node)
+        return next_is_nil_or_one_of?(node, %w[tbody tfoot])
 
       when 'tfoot'
-        # A tfoot element's end tag may be omitted if the tfoot element is
-        # immediately followed by a tbody element, or if there is no more
-        # content in the parent element.
-        return next_elm&.name == 'tbody' ||
-               !parent_contains_more_content?(node)
+        # A tfoot element's end tag can be omitted if there is no more content
+        # in the parent element.
+        return !parent_contains_more_content?(node)
 
       when 'tr'
         # A tr element's end tag may be omitted if the tr element is immediately

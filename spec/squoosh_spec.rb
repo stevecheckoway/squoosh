@@ -215,7 +215,8 @@ describe Squoosh do
                  '<ol><li></li><!-- --></ol>',
                  '<ol><li></li> <!-- --><!-- --> <!-- --></ol>']
 
-    keep '/li', ['<ol><li></li><script></script></ol>']
+    keep '/li', ['<ol><li></li><script></script></ol>',
+                 '<ol><li></li>text<li></ol>']
 
     # A dt element's end tag may be omitted if the dt element is immediately
     # followed by another dt element or a dd element.
@@ -223,7 +224,8 @@ describe Squoosh do
                  '<dl><dt> </dt><dt></dt><!-- --><dd></dd></dl>']
 
     keep '/dt', ['<dl><dt></dt><script></script></dl>',
-                 '<dl><dt></dt></dl>']
+                 '<dl><dt></dt></dl>',
+                 '<dl><dt></dt>X<dd></dd></dl>']
 
     # A dd element's end tag may be omitted if the dd element is immediately
     # followed by another dd element or a dt element, or if there is no more
@@ -237,33 +239,45 @@ describe Squoosh do
                  '<dl><dt></dt><dd></dd> </dl>',
                  '<dl><dt></dt><dd></dd><!-- --></dl>']
 
-    keep '/dd', ['<dl><dt></dt><dd></dd><script></script>']
+    keep '/dd', ['<dl><dt></dt><dd></dd><script></script>',
+                 '<dl><dt></dt><dd></dd>X<dt></dt></dl>']
 
-    # A p element's end tag may be omitted if the p element is immediately
-    # followed by an address, article, aside, blockquote, div, dl, fieldset,
-    # footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, main, nav, ol,
-    # p, pre, section, table, or ul, element, or if there is no more content
-    # in the parent element and the parent element is not an a element.
+        # A p element's end tag can be omitted if the p element is immediately
+        # followed by an address, article, aside, blockquote, details, div,
+        # dl, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5,
+        # h6, header, hgroup, hr, main, menu, nav, ol, p, pre, section, table,
+        # or ul element, or if there is no more content in the parent element
+        # and the parent element is an HTML element that is not an a, audio,
+        # del, ins, map, noscript, or video element, or an autonomous custom
+        # element.
     omit '/p', (['<p></p><hr>',
                  '<p></p> <hr>',
                  '<p></p><!-- --><hr>',
                  '<p></p>',
                  '<p></p> ',
+                 '<div><p></p></div>',
+                 '<div><p></p> </div>',
+                 '<div><p></p><!-- --></div>',
                  '<p></p><!-- -->'] +
-                %w[address article aside blockquote div dl fieldset footer form
-                   h1 h2 h3 h4 h5 h6 header hgroup main nav ol p pre section
-                   table ul].flat_map do |t|
-                  ["<p></p><#{t}></#{t}>",
-                   "<p></p> <#{t}></#{t}>",
-                   "<p></p><!-- --><#{t}></#{t}>"]
-                end)
+                %w[address article aside blockquote details div dl fieldset
+                   figcaption figure footer form h1 h2 h3 h4 h5 h6 header
+                   hgroup main menu nav ol p pre section table ul]
+                  .flat_map do |t|
+                    ["<p></p><#{t}></#{t}>",
+                     "<p></p> <#{t}></#{t}>",
+                     "<p></p><!-- --><#{t}></#{t}>"]
+                  end)
 
-    keep '/p', ['<p></p><script></script>',
-                '<p></p> <script></script>',
-                '<p></p><!-- --><script></script>',
-                '<a><p></p></a>',
-                '<a><p></p> </a>',
-                '<a><p></p><!-- --></a>']
+    # We can't test <noscript><p></p></noscript> because we can't actually
+    # specify that in HTML.
+    keep '/p', (['<p></p><script></script>',
+                 '<p></p> <script></script>',
+                 '<p></p><!-- --><script></script>'] +
+                 %w[a audio del ins map video].flat_map do |t|
+                   ["<#{t}><p></p></#{t}>",
+                    "<#{t}><p></p> </#{t}>",
+                    "<#{t}><p></p><!-- --></#{t}>"]
+                 end)
 
     # An rb element's end tag may be omitted if the rb element is immediately
     # followed by an rb, rt, rtc or rp element, or if there is no more content
@@ -370,17 +384,14 @@ describe Squoosh do
     # tbody element is a tr element, and if the element is not immediately
     # preceded by a tbody, thead, or tfoot element whose end tag has been
     # omitted. (It can't be omitted if the element is empty.)
-    omit 'tbody', ['<table><tbody><tr></tr></tbody></table>']
-
-    keep 'tbody',
-         ['<table><tbody> <tr></tr></tbody></table>',
-          '<table><tbody><!-- --><tr></tr></tbody></table>',
-          # '<table><tbody></tbody> <tbody><tr></tr></tbody></table>',
-          # '<table><tbody></tbody><!-- --><tbody><tr></tr></tbody></table>',
-          '<table><thead></thead> <tbody><tr></tr></tbody></table>',
-          '<table><thead></thead><!-- --><tbody><tr></tr></tbody></table>',
+    omit 'tbody',
+         ['<table><tbody><tr></tr></tbody></table>',
           '<table><tfoot></tfoot> <tbody><tr></tr></tbody></table>',
           '<table><tfoot></tfoot><!-- --><tbody><tr></tr></tbody></table>']
+
+    keep 'tbody',
+         ['<table><thead></thead> <tbody><tr></tr></tbody></table>',
+          '<table><thead></thead><!-- --><tbody><tr></tr></tbody></table>']
 
     # A tbody element's end tag may be omitted if the tbody element is
     # immediately followed by a tbody or tfoot element, or if there is no more
@@ -393,11 +404,9 @@ describe Squoosh do
 
     keep '/tbody', ['<table><tbody></tbody><script></script></table>']
 
-    # A tfoot element's end tag may be omitted if the tfoot element is
-    # immediately followed by a tbody element, or if there is no more content
-    # in the parent element.
-    omit '/tfoot', ['<table><tfoot></tfoot><tbody></tbody></table>',
-                    '<table><tfoot></tfoot> </table>',
+    # A tfoot element's end tag can be omitted if there is no more content in
+    # the parent element.
+    omit '/tfoot', ['<table><tfoot></tfoot> </table>',
                     '<table><tfoot></tfoot><!-- --></table>']
 
     keep '/tfoot', ['<table><tfoot></tfoot><tfoot></tfoot></table>']
