@@ -242,14 +242,14 @@ describe Squoosh do
     keep '/dd', ['<dl><dt></dt><dd></dd><script></script>',
                  '<dl><dt></dt><dd></dd>X<dt></dt></dl>']
 
-        # A p element's end tag can be omitted if the p element is immediately
-        # followed by an address, article, aside, blockquote, details, div,
-        # dl, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5,
-        # h6, header, hgroup, hr, main, menu, nav, ol, p, pre, section, table,
-        # or ul element, or if there is no more content in the parent element
-        # and the parent element is an HTML element that is not an a, audio,
-        # del, ins, map, noscript, or video element, or an autonomous custom
-        # element.
+    # A p element's end tag can be omitted if the p element is immediately
+    # followed by an address, article, aside, blockquote, details, div,
+    # dl, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5,
+    # h6, header, hgroup, hr, main, menu, nav, ol, p, pre, section, table,
+    # or ul element, or if there is no more content in the parent element
+    # and the parent element is an HTML element that is not an a, audio,
+    # del, ins, map, noscript, or video element, or an autonomous custom
+    # element.
     omit '/p', (['<p></p><hr>',
                  '<p></p> <hr>',
                  '<p></p><!-- --><hr>',
@@ -336,13 +336,13 @@ describe Squoosh do
     # immediately preceded by another colgroup element whose end tag has been
     # omitted. (It can't be omitted if the element is empty.)
     omit 'colgroup',
-         ['<table><colgroup><col><col></colgroup></table>']
+         ['<table><colgroup><col><col></colgroup></table>',
+          '<table><colgroup><!-- --><col><col></colgroup></table>']
 
     keep 'colgroup',
-         ['<table><colgroup><!-- --><col><col></colgroup></table>',
-          '<table><colgroup><!-- --></colgroup>',
-          '<table><colgroup> </colgroup>',
-          '<table><colgroup></colgroup>']
+         ['<table><colgroup><!-- --></colgroup></table>',
+          '<table><colgroup> </colgroup></table>',
+          '<table><colgroup></colgroup></table>']
 
     # A colgroup element's end tag may be omitted if the colgroup element is
     # not immediately followed by a space character or a comment.

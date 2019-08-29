@@ -413,6 +413,53 @@ module Squoosh
       foreign_element?(node) && node.children.empty?
     end
 
+    def content_node?(node)
+      # Inter-element whitespace, comment nodes, and processing instruction
+      # nodes must be ignored when establishing whether an element's contents
+      # match the element's content model or not, and must be ignored when
+      # following algorithms that define document and element semantics.
+      !(node.comment? ||
+        node.processing_instruction? ||
+        inter_element_whitespace?(node))
+    end
+
+    def previous_sibling_content_node(node)
+      while (node = node.previous_sibling)
+        return node if content_node?(node)
+      end
+      nil
+    end
+
+    def next_sibling_content_node(node)
+      while (node = node.next_sibling)
+        return node if content_node?(node)
+      end
+      nil
+    end
+
+    def first_child_content_node(node)
+      return nil if node.children.empty?
+
+      node = node.children[0]
+      return node if content_node?(node)
+
+      next_sibling_content_node(node)
+    end
+
+    def next_sibling_is_nil_or_one_of?(node, elements)
+      node = next_sibling_content_node(node)
+      node.nil? || (node.element? && elements.include?(node.name))
+    end
+
+    def next_sibling_is_one_of?(node, elements)
+      node = next_sibling_content_node(node)
+      node&.element? && elements.include?(node.name)
+    end
+
+    def parent_contains_more_content?(node)
+      !next_sibling_content_node(node).nil?
+    end
+
     def omit_start_tag?(node)
       return false unless @options[:omit_tags]
       return false unless node.attributes.empty?
@@ -447,57 +494,28 @@ module Squoosh
         # inside the colgroup element is a col element, and if the element is
         # not immediately preceded by another colgroup element whose end tag
         # has been omitted. (It can't be omitted if the element is empty.)
-        return false if node.children.empty?
-        return false unless node.children[0].name == 'col'
+        child = first_child_content_node(node)
+        return false if child.nil? || !child.element? || child.name != 'col'
 
-        prev_elm = node.previous_element
-        return prev_elm.nil? ||
-               prev_elm.name != 'colgroup' ||
-               !omit_end_tag?(prev_elm)
+        prev_node = previous_sibling_content_node(node)
+        return !(prev_node&.element? &&
+                 prev_node.name == 'colgroup' &&
+                 omit_end_tag?(prev_node))
 
       when 'tbody'
         # A tbody element's start tag may be omitted if the first thing inside
         # the tbody element is a tr element, and if the element is not
         # immediately preceded by a tbody, thead, or tfoot element whose end
         # tag has been omitted. (It can't be omitted if the element is empty.)
-        return false if node.children.empty?
-        return false unless node.children[0].name == 'tr'
+        child = first_child_content_node(node)
+        return false if child.nil? || !child.element? || child.name != 'tr'
 
-        prev_elm = node.previous_element
-        return prev_elm.nil? ||
-               !%w[tbody thead tfoot].include?(prev_elm.name) ||
-               !omit_end_tag?(prev_elm)
+        prev_node = previous_sibling_content_node(node)
+        return !(prev_node&.element? &&
+                 %w[tbody thead tfoot].include?(prev_node.name) &&
+                 omit_end_tag?(prev_node))
       end
       false
-    end
-
-    def next_content_node(node)
-      # Inter-element whitespace, comment nodes, and processing instruction
-      # nodes must be ignored when establishing whether an element's contents
-      # match the element's content model or not, and must be ignored when
-      # following algorithms that define document and element semantics.
-      while (node = node.next_sibling)
-        next if node.comment?
-        next if node.processing_instruction?
-        next if inter_element_whitespace?(node)
-
-        return node
-      end
-      nil
-    end
-
-    def next_is_nil_or_one_of?(node, elements)
-      node = next_content_node(node)
-      node.nil? || (node.element? && elements.include?(node.name))
-    end
-
-    def next_is_one_of?(node, elements)
-      node = next_content_node(node)
-      node&.element? && elements.include?(node.name)
-    end
-
-    def parent_contains_more_content?(node)
-      !next_content_node(node).nil?
     end
 
     def omit_end_tag?(node)
@@ -506,7 +524,6 @@ module Squoosh
       return false if node.parent.name == 'noscript'
 
       next_node = node.next_sibling
-      next_elm = node.next_element
       case node.name
       when 'html'
         # An html element's end tag may be omitted if the html element is not
@@ -529,18 +546,18 @@ module Squoosh
         # An li element's end tag may be omitted if the li element is
         # immediately followed by another li element or if there is no more
         # content in the parent element.
-        return next_is_nil_or_one_of?(node, ['li'])
+        return next_sibling_is_nil_or_one_of?(node, ['li'])
 
       when 'dt'
         # A dt element's end tag may be omitted if the dt element is immediately
         # followed by another dt element or a dd element.
-        return next_is_one_of?(node, %w[dt dd])
+        return next_sibling_is_one_of?(node, %w[dt dd])
 
       when 'dd'
         # A dd element's end tag may be omitted if the dd element is immediately
         # followed by another dd element or a dt element, or if there is no more
         # content in the parent element.
-        return next_is_nil_or_one_of?(node, %w[dt dd])
+        return next_sibling_is_nil_or_one_of?(node, %w[dt dd])
 
       when 'p'
         # A p element's end tag can be omitted if the p element is immediately
@@ -551,14 +568,18 @@ module Squoosh
         # and the parent element is an HTML element that is not an a, audio,
         # del, ins, map, noscript, or video element, or an autonomous custom
         # element.
-        return true if next_is_one_of?(node, %w[
-          address article aside blockquote details div dl fieldset figcaption
-          figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr main menu nav
-          ol p pre section table ul
-        ])
+        return true if next_sibling_is_one_of?(
+          node,
+          %w[
+            address article aside blockquote details div dl fieldset figcaption
+            figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr main menu nav
+            ol p pre section table ul
+          ]
+        )
         return false if foreign_element?(node.parent)
+
         return !parent_contains_more_content?(node) &&
-               !%[a audio del ins map noscript video].include?(node.parent.name)
+               !%(a audio del ins map noscript video).include?(node.parent.name)
 
       when 'rb', 'rt', 'rp'
         # An rb element's end tag may be omitted if the rb element is
@@ -572,28 +593,26 @@ module Squoosh
         # An rp element's end tag may be omitted if the rp element is
         # immediately followed by an rb, rt, rtc or rp element, or if there is
         # no more content in the parent element.
-        return next_is_nil_or_one_of?(node, %w[rb rt rtc rp])
+        return next_sibling_is_nil_or_one_of?(node, %w[rb rt rtc rp])
 
       when 'rtc'
         # An rtc element's end tag may be omitted if the rtc element is
         # immediately followed by an rb, rtc or rp element, or if there is no
         # more content in the parent element.
-        return next_is_nil_or_one_of?(node, %w[rb rtc rp])
+        return next_sibling_is_nil_or_one_of?(node, %w[rb rtc rp])
 
       when 'optgroup'
         # An optgroup element's end tag may be omitted if the optgroup element
         # is immediately followed by another optgroup element, or if there is
         # no more content in the parent element.
-        return next_elm&.name == 'optgroup' ||
-               !parent_contains_more_content?(node)
+        return next_sibling_is_nil_or_one_of?(node, ['optgroup'])
 
       when 'option'
         # An option element's end tag may be omitted if the option element is
         # immediately followed by another option element, or if it is
         # immediately followed by an optgroup element, or if there is no more
         # content in the parent element.
-        return %w[option optgroup].include?(next_elm&.name) ||
-               !parent_contains_more_content?(node)
+        return next_sibling_is_nil_or_one_of?(node, %w[option optgroup])
 
       when 'colgroup'
         # A colgroup element's end tag may be omitted if the colgroup element is
@@ -606,13 +625,13 @@ module Squoosh
       when 'thead'
         # A thead element's end tag may be omitted if the thead element is
         # immediately followed by a tbody or tfoot element.
-        return next_is_one_of?(node, %w[tbody tfoot])
+        return next_sibling_is_one_of?(node, %w[tbody tfoot])
 
       when 'tbody'
         # A tbody element's end tag may be omitted if the tbody element is
         # immediately followed by a tbody or tfoot element, or if there is no
         # more content in the parent element.
-        return next_is_nil_or_one_of?(node, %w[tbody tfoot])
+        return next_sibling_is_nil_or_one_of?(node, %w[tbody tfoot])
 
       when 'tfoot'
         # A tfoot element's end tag can be omitted if there is no more content
@@ -623,8 +642,7 @@ module Squoosh
         # A tr element's end tag may be omitted if the tr element is immediately
         # followed by another tr element, or if there is no more content in the
         # parent element.
-        return next_elm&.name == 'tr' ||
-               !parent_contains_more_content?(node)
+        return next_sibling_is_nil_or_one_of?(node, ['tr'])
 
       when 'td', 'th'
         # A td element's end tag may be omitted if the td element is immediately
@@ -634,8 +652,7 @@ module Squoosh
         # A th element's end tag may be omitted if the th element is immediately
         # followed by a td or th element, or if there is no more content in the
         # parent element.
-        return %w[td th].include?(next_elm&.name) ||
-               !parent_contains_more_content?(node)
+        return next_sibling_is_nil_or_one_of?(node, %w[td th])
       end
       false
     end
