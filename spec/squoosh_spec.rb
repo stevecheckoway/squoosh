@@ -325,11 +325,18 @@ describe Squoosh do
     # An optgroup element's end tag may be omitted if the optgroup element is
     # immediately followed by another optgroup element, or if there is no more
     # content in the parent element.
+    omit '/optgroup',
+         ['<select><optgroup></optgroup></select>',
+          '<select><optgroup></optgroup><optgroup></optgroup></select>']
 
     # An option element's end tag may be omitted if the option element is
     # immediately followed by another option element, or if it is immediately
     # followed by an optgroup element, or if there is no more content in the
     # parent element.
+    omit '/option',
+         ['<select><option></option></select>',
+          '<select><option></option><option></option></select>',
+          '<select><option></option><optgroup></optgroup></select>']
 
     # A colgroup element's start tag may be omitted if the first thing inside
     # the colgroup element is a col element, and if the element is not
