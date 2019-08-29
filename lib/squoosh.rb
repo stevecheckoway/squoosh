@@ -471,15 +471,28 @@ module Squoosh
       false
     end
 
-    def parent_contains_more_content?(node)
+    def next_content_node(node)
+      # Inter-element whitespace, comment nodes, and processing instruction
+      # nodes must be ignored when establishing whether an element's contents
+      # match the element's content model or not, and must be ignored when
+      # following algorithms that define document and element semantics.
       while (node = node.next_sibling)
         next if node.comment?
         next if node.processing_instruction?
-        next if inter_element_whitespace? node
+        next if inter_element_whitespace?(node)
 
-        return true
+        return node
       end
-      false
+      nil
+    end
+
+    def next_is_nil_or_one_of?(node, elements)
+      node = next_content_node(node)
+      node.nil? || (node.element? && elements.include?(node.name))
+    end
+
+    def parent_contains_more_content?(node)
+      !next_content_node(node).nil?
     end
 
     def omit_end_tag?(node)
@@ -551,14 +564,13 @@ module Squoosh
         # An rp element's end tag may be omitted if the rp element is
         # immediately followed by an rb, rt, rtc or rp element, or if there is
         # no more content in the parent element.
-        return %w[rb rt rtc rp].include?(next_elm&.name) ||
-               !parent_contains_more_content?(node)
+        return next_is_nil_or_one_of?(node, %w[rb rt rtc rp])
+
       when 'rtc'
         # An rtc element's end tag may be omitted if the rtc element is
         # immediately followed by an rb, rtc or rp element, or if there is no
         # more content in the parent element.
-        return %w[rb rtc rp].include?(next_elm&.name) ||
-               !parent_contains_more_content?(node)
+        return next_is_nil_or_one_of?(node, %w[rb rtc rp])
 
       when 'optgroup'
         # An optgroup element's end tag may be omitted if the optgroup element

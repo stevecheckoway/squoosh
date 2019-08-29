@@ -268,18 +268,45 @@ describe Squoosh do
     # An rb element's end tag may be omitted if the rb element is immediately
     # followed by an rb, rt, rtc or rp element, or if there is no more content
     # in the parent element.
+    keep '/rb', ['<ruby><rb>漢</rb>字</ruby>',
+                 '<ruby><rb>漢</rb><span></span></ruby>']
+    omit '/rb', ['<ruby><rb>漢</rb></ruby>',
+                 '<ruby><rb>漢</rb><rb>字</rb></ruby>',
+                 '<ruby><rb>漢</rb><rt>kan</rt></ruby>',
+                 '<ruby><rb>漢</rb><rb>字</rb><rtc><rt>kanji</rt></rtc></ruby>',
+                 '<ruby><rb>漢</rb><rp>(</rp><rt>kan</rt><rp>)</rp></ruby>']
 
     # An rt element's end tag may be omitted if the rt element is immediately
     # followed by an rb, rt, rtc, or rp element, or if there is no more
     # content in the parent element.
+    keep '/rt', ['<ruby><rt>kan</rt>字</ruby>',
+                 '<ruby><rt>kan</rt><span></span></ruby>']
+    omit '/rt', ['<ruby><rb>漢</rb><rt>kan</rt></ruby>',
+                 '<ruby><rb>漢</rb><rt>kan</rt><rb>字</rb><rt>ji</rt></ruby>',
+                 '<ruby><rb>漢</rb><rt>kan</rt><rb>字</rb><rt>ji</rt>' \
+                   '<rtc><rt>kanji></rt></rtc></ruby>',
+                 '<ruby><rb>漢</rb><rp>(</rp><rt>kan</rt><rp>)</rp></ruby>']
 
     # An rtc element's end tag may be omitted if the rtc element is
     # immediately followed by an rb, rtc or rp element, or if there is no more
     # content in the parent element.
+    keep '/rtc', ['<ruby><rtc><rt>kanji</rt></rtc>字</ruby>',
+                  '<ruby><rtc><rt>kanji</rt></rtc><span></span></ruby>']
+    omit '/rtc', ['<ruby>漢字<rtc><rt>kanji></rt></rtc></ruby>',
+                  '<ruby>漢字<rtc><rt>kanji></rt></rtc></ruby>',
+                  '<ruby><rtc></rtc><rtc></rtc></ruby>',
+                  '<ruby><rtc></rtc><rp></rp></ruby>']
 
     # An rp element's end tag may be omitted if the rp element is immediately
     # followed by an rb, rt, rtc or rp element, or if there is no more content
     # in the parent element.
+    keep '/rp', ['<ruby><rp></rp>字</ruby>',
+                 '<ruby><rp></rp><span></span></ruby>']
+    omit '/rp', ['<ruby><rp></rp></ruby>',
+                 '<ruby><rp></rp><rb></rb></ruby>',
+                 '<ruby><rp></rp><rt></rt></ruby>',
+                 '<ruby><rp></rp><rtc></rtc></ruby>',
+                 '<ruby><rp></rp><rp></rp></ruby>']
 
     # An optgroup element's end tag may be omitted if the optgroup element is
     # immediately followed by another optgroup element, or if there is no more
