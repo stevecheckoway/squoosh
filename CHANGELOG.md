@@ -8,12 +8,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 ### Changed
-- Changed minimum supported Ruby version to 2.5
 ### Deprecated
 ### Removed
 ### Fixed
-- Omit `colgroup` start and end tags
 ### Security
+
+## [0.3.2] - 2020-08-25
+### Changed
+- Changed minimum supported Ruby version to 2.5
+### Fixed
+- Omit `colgroup` start and end tags
 
 ## [0.3.1] - 2019-08-23
 ### Fixed
