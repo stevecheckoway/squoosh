@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 ### Changed
+- Changed minimum supported Ruby version to 2.5
 ### Deprecated
 ### Removed
 ### Fixed

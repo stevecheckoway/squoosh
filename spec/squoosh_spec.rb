@@ -365,7 +365,7 @@ describe Squoosh do
         '<colgroup><col></colgroup></table>'
       it html do
         expect(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
-          .to eq(DOCTYPE + '<table><col><colgroup><col></table>')
+          .to eq("#{DOCTYPE}<table><col><colgroup><col></table>")
       end
     end
 
@@ -636,7 +636,7 @@ describe Squoosh do
       html = '<script>x="</scr" + "ipt>"</script>'
       it html do
         expect(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS))
-          .not_to match(%r{<\/script>.*<\/script>})
+          .not_to match(%r{</script>.*</script>})
       end
     end
 

@@ -204,6 +204,7 @@ module Squoosh
       false
     end
 
+    # rubocop:disable Style/StringConcatenation
     EVENT_HANDLERS_XPATH = (
       # Select all attribute nodes whose names start with "on";
       '//@*[starts-with(name(),"on")]' +
@@ -233,6 +234,7 @@ module Squoosh
           ')' \
       ']'
     ).freeze
+    # rubocop:enable Style/StringConcatenation
     private_constant :EVENT_HANDLERS_XPATH
 
     def uglify(content, options)
@@ -345,7 +347,7 @@ module Squoosh
           # value.gsub!(/&([a-zA-Z0-9]+;|#[0-9]+|#[xX][a-fA-F0-9]+)/, '&amp;\1')
           value = (attr.value || '').gsub('&', '&amp;')
           if value.empty?
-            output << ' ' + name
+            output << " #{name}"
           elsif /[\t\n\f\r "'`=<>]/ !~ value
             last_attr_unquoted = true
             output << " #{name}=#{value}"
@@ -391,13 +393,13 @@ module Squoosh
 
       uri = ns.href
       if uri == Nokogiri::HTML5::XML_NAMESPACE
-        'xml:' + attr.name
+        "xml:#{attr.name}"
       elsif uri == Nokogiri::HTML5::XMLNS_NAMESPACE && attr.name == 'xmlns'
         'xmlns'
       elsif uri == Nokogiri::HTML5::XMLNS_NAMESPACE
-        'xmlns:' + attr.name
+        "xmlns:#{attr.name}"
       elsif uri == Nokogiri::HTML5::XLINK_NAMESPACE
-        'xlink:' + attr.name
+        "xlink:#{attr.name}"
       else
         # :nocov:
         raise 'Unreachable!'
