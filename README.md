@@ -1,5 +1,5 @@
-[![Travis-CI Build
-Status](https://travis-ci.org/stevecheckoway/squoosh.svg)](https://travis-ci.org/stevecheckoway/squoosh)
+[![Actions
+Status](https://github.com/stevecheckoway/squoosh/workflows/CI%20Test/badge.svg)](https://github.com/stevecheckoway/squoosh/actions)
 [![Coverage
 Status](https://coveralls.io/repos/github/stevecheckoway/squoosh/badge.svg?branch=master)](https://coveralls.io/github/stevecheckoway/squoosh?branch=master)
 
