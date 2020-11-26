@@ -26,4 +26,7 @@ Metrics/PerceivedComplexity:
 Style/IfUnlessModifier:
   Enabled: false
 
+Lint/DuplicateBranch:
+  Enabled: false
+
 # vim: sw=2 sts=2 ts=8 et:
