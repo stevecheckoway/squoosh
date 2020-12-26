@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   }
   # rubocop: enable Layout/HashAlignment
 
-  spec.required_ruby_version = '~> 2.5'
+  spec.required_ruby_version = '>= 2.6', '< 4.0'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake'

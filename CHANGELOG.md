@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Support for Ruby 3.0 (`execjs` needed a fix before this could happen)
 ### Changed
 ### Deprecated
 ### Removed
+- Support for Ruby 2.5 (EOL)
 ### Fixed
 ### Security
 
