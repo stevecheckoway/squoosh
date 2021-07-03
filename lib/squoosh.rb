@@ -232,7 +232,7 @@ module Squoosh
                rejectionhandled storage unhandledrejection
                unload].map { |n| "name()=\"on#{n}\"" }.join(' or ') +
           ')' \
-      ']'
+          ']'
     ).freeze
     # rubocop:enable Style/StringConcatenation
     private_constant :EVENT_HANDLERS_XPATH

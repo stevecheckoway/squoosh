@@ -68,8 +68,8 @@ W3SCHOOLS_CSS = <<~CSS_EOF
 CSS_EOF
 
 W3SCHOOLS_CSS_EXPECTED = '.flex-container{display:flex;flex-wrap:wrap;' \
-  'background-color:DodgerBlue}.flex-container>div{background-color:#f1f1f1;' \
-  'width:100px;margin:10px;text-align:center;line-height:75px;font-size:30px}'
+                         'background-color:DodgerBlue}.flex-container>div{background-color:#f1f1f1;' \
+                         'width:100px;margin:10px;text-align:center;line-height:75px;font-size:30px}'
 
 JS = <<~JS_EOF
   function foo() {
@@ -168,8 +168,8 @@ describe Squoosh do
     keep 'head',
          ['<head id=X></head>',
           '<head><!-- -->' \
-            '<meta http-equiv="Content-Type" content="text/html">' \
-            '</head>']
+          '<meta http-equiv="Content-Type" content="text/html">' \
+          '</head>']
 
     # A head element's end tag may be omitted if the head element is not
     # immediately followed by a space character or a comment.
@@ -298,7 +298,7 @@ describe Squoosh do
     omit '/rt', ['<ruby><rb>漢</rb><rt>kan</rt></ruby>',
                  '<ruby><rb>漢</rb><rt>kan</rt><rb>字</rb><rt>ji</rt></ruby>',
                  '<ruby><rb>漢</rb><rt>kan</rt><rb>字</rb><rt>ji</rt>' \
-                   '<rtc><rt>kanji></rt></rtc></ruby>',
+                 '<rtc><rt>kanji></rt></rtc></ruby>',
                  '<ruby><rb>漢</rb><rp>(</rp><rt>kan</rt><rp>)</rp></ruby>']
 
     # An rtc element's end tag may be omitted if the rtc element is
@@ -362,7 +362,7 @@ describe Squoosh do
 
     context 'keep second colgroup\'s start tag' do
       html = '<table><colgroup><col></colgroup>' \
-        '<colgroup><col></colgroup></table>'
+             '<colgroup><col></colgroup></table>'
       it html do
         expect(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
           .to eq("#{DOCTYPE}<table><col><colgroup><col></table>")
