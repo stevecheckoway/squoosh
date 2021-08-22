@@ -7,13 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Support for Ruby 3.0 (`execjs` needed a fix before this could happen)
 ### Changed
 ### Deprecated
 ### Removed
-- Support for Ruby 2.5 (EOL)
 ### Fixed
 ### Security
+
+## [0.4.0] - 2021-08-22
+### Added
+- Support for Ruby 3.0 (`execjs` needed a fix before this could happen)
+### Changed
+- HTML parsing is now done via Nokogiri rather than Nokogumbo (Nokogumbo was
+  merged into Nokogiri)
+### Removed
+- Support for Ruby 2.5 (EOL)
 
 ## [0.3.2] - 2020-08-25
 ### Changed
