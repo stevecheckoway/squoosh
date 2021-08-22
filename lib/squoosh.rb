@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'squoosh/version'
-require 'nokogumbo'
+require 'nokogiri'
 require 'sassc'
 require 'set'
 require 'uglifier'
