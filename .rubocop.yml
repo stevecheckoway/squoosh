@@ -1,3 +1,5 @@
+require: rubocop-rake
+
 AllCops:
   TargetRubyVersion: 2.6
   NewCops: enable
@@ -5,6 +7,7 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - 'spec/*_spec.rb'
+    - 'squoosh.gemspec'
 
 # Disabled cops.
 
