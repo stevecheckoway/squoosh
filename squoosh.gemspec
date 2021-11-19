@@ -4,7 +4,6 @@ lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'squoosh/version'
 
-# rubocop:disable Metrics/BlockLength
 Gem::Specification.new do |spec|
   spec.name          = 'squoosh'
   spec.version       = Squoosh::VERSION
@@ -18,10 +17,10 @@ Gem::Specification.new do |spec|
 
   # rubocop:disable Layout/HashAlignment
   spec.metadata      = {
-    'bug_tracker_uri' => 'https://github.com/stevecheckoway/squoosh/issues',
-    'changelog_uri'   => 'https://github.com/stevecheckoway/squoosh/blob/master/CHANGELOG.md',
-    'homepage_uri'    => spec.homepage,
-    'source_code_uri' => 'https://github.com/stevecheckoway/squoosh',
+    'bug_tracker_uri'       => 'https://github.com/stevecheckoway/squoosh/issues',
+    'changelog_uri'         => 'https://github.com/stevecheckoway/squoosh/blob/master/CHANGELOG.md',
+    'homepage_uri'          => spec.homepage,
+    'source_code_uri'       => 'https://github.com/stevecheckoway/squoosh',
     'rubygems_mfa_required' => 'true'
   }
   # rubocop: enable Layout/HashAlignment
@@ -32,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'rubocop-rake'
   spec.add_development_dependency 'simplecov'
   spec.add_development_dependency 'simplecov-lcov'
   spec.add_development_dependency 'yard'
@@ -40,5 +40,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sassc', '~> 2.1'
   spec.add_runtime_dependency 'uglifier', '~> 4.1'
 end
-# rubocop:enable Metrics/BlockLength
 # vim: set sw=2 sts=2 ts=8 et:
