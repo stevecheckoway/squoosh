@@ -1,4 +1,6 @@
-require: rubocop-rake
+require:
+  - rubocop-rake
+  - rubocop-rspec
 
 AllCops:
   TargetRubyVersion: 2.6
@@ -30,6 +32,12 @@ Style/IfUnlessModifier:
   Enabled: false
 
 Lint/DuplicateBranch:
+  Enabled: false
+
+RSpec/DescribedClass:
+  Enabled: false
+
+RSpec/EmptyExampleGroup:
   Enabled: false
 
 # vim: sw=2 sts=2 ts=8 et:
