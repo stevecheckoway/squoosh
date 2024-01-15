@@ -67,7 +67,7 @@ module Squoosh
     #
     # @param options [Hash] options to override the default options
     def initialize(options = {})
-      options.each do |key, _val|
+      options.each_key do |key|
         unless DEFAULT_OPTIONS.include?(key)
           raise ArgumentError, "Invalid option `#{key}'"
         end
@@ -387,9 +387,9 @@ module Squoosh
       output.string
     end
 
-    XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
-    XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/"
-    XLINK_NAMESPACE = "http://www.w3.org/1999/xlink"
+    XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace'
+    XMLNS_NAMESPACE = 'http://www.w3.org/2000/xmlns/'
+    XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink'
     private_constant :XML_NAMESPACE, :XMLNS_NAMESPACE, :XLINK_NAMESPACE
 
     def qualified_attribute_name(attr)
