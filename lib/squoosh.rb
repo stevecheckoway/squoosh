@@ -387,18 +387,23 @@ module Squoosh
       output.string
     end
 
+    XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
+    XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/"
+    XLINK_NAMESPACE = "http://www.w3.org/1999/xlink"
+    private_constant :XML_NAMESPACE, :XMLNS_NAMESPACE, :XLINK_NAMESPACE
+
     def qualified_attribute_name(attr)
       ns = attr.namespace
       return attr.name if ns.nil?
 
       uri = ns.href
-      if uri == Nokogiri::HTML5::XML_NAMESPACE
+      if uri == XML_NAMESPACE
         "xml:#{attr.name}"
-      elsif uri == Nokogiri::HTML5::XMLNS_NAMESPACE && attr.name == 'xmlns'
+      elsif uri == XMLNS_NAMESPACE && attr.name == 'xmlns'
         'xmlns'
-      elsif uri == Nokogiri::HTML5::XMLNS_NAMESPACE
+      elsif uri == XMLNS_NAMESPACE
         "xmlns:#{attr.name}"
-      elsif uri == Nokogiri::HTML5::XLINK_NAMESPACE
+      elsif uri == XLINK_NAMESPACE
         "xlink:#{attr.name}"
       else
         # :nocov:
