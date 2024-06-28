@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require_relative "spec_helper"
 
 OMIT_TAG_OPTIONS = {
   omit_tags: true,
