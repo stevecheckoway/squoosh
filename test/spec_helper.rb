@@ -4,8 +4,10 @@ require "simplecov"
 require "simplecov-lcov"
 require "minitest/autorun"
 require "minitest/reporters"
+require "minitest/proveit"
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
+Minitest::Test.prove_it! # Force tests to prove success via assertions
 
 SimpleCov::Formatter::LcovFormatter.config do |c|
   c.report_with_single_file = true
