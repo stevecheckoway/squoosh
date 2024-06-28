@@ -86,27 +86,27 @@ DOCTYPE = "<!DOCTYPE html>"
 
 def omit(tag, htmls)
   htmls.each do |html|
-    it "omits <#{tag}> in #{code}#{html}" do
-      expect(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
-        .not_to match "<#{tag}[ >]"
+    it "omits <#{tag}> in #{html}" do
+      _(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
+        .wont_match "<#{tag}[ >]"
     end
   end
 end
 
 def keep(tag, htmls)
   htmls.each do |html|
-    it "keeps <#{tag}> in #{code}#{html}" do
-      expect(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
-        .to match "<#{tag}[ >]"
+    it "keeps <#{tag}> in #{html}" do
+      _(Squoosh.minify_html(DOCTYPE + html, OMIT_TAG_OPTIONS))
+        .must_match(/<#{tag}[ >]/)
     end
   end
 end
 
 def no_omit(tag, htmls)
   htmls.each do |html|
-    it "does not omit <#{tag}> in #{code}#{html}" do
-      expect(Squoosh.minify_html(DOCTYPE + html, NO_OMIT_TAG_OPTIONS))
-        .to match "<#{tag}[ >]"
+    it "does not omit <#{tag}> in #{html}" do
+      _(Squoosh.minify_html(DOCTYPE + html, NO_OMIT_TAG_OPTIONS))
+        .must_match(/<#{tag}[ >]/)
     end
   end
 end
@@ -114,36 +114,36 @@ end
 # Ensure that the spaces remain, even after being compressed.
 def keep_spaces(htmls)
   htmls.each do |html|
-    it "keeps spaces in #{code}#{html}" do
+    it "keeps spaces in #{html}" do
       html = DOCTYPE + html
-      expect(Squoosh.minify_html(html, HTML_OPTIONS)).to eq html
+      _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
     end
   end
 end
 
 def remove_comments(comment_start, htmls)
   htmls.each do |html|
-    it "removes comments in #{code}#{html}" do
+    it "removes comments in #{html}" do
       html = DOCTYPE + html
-      expect(Squoosh.minify_html(html, COMMENT_OPTIONS))
-        .not_to include comment_start
+      _(Squoosh.minify_html(html, COMMENT_OPTIONS))
+        .wont_match comment_start
     end
   end
 end
 
 def exact_match(prefix, htmls, options)
   htmls.each do |html|
-    it "#{prefix} in #{code}#{html[0]}" do
+    it "#{prefix} in #{html[0]}" do
       input = DOCTYPE + html[0]
       output = DOCTYPE + html[1]
-      expect(Squoosh.minify_html(input, options)).to eq output
+      _(Squoosh.minify_html(input, options)).must_equal output
     end
   end
 end
 
 describe Squoosh do
   describe ".minify_html" do
-    context "when omitting tags" do
+    describe "when omitting tags" do
       # An html element's start tag may be omitted if the first thing inside the
       # html element is not a comment.
       omit "html", ["<html></html>",
@@ -455,7 +455,7 @@ describe Squoosh do
     end
 
     # Make sure we keep tags when we aren't omitting them.
-    context "when not omitting tags" do
+    describe "when not omitting tags" do
       no_omit("html", ["<!-- -->", "<head>", "<body>"])
       no_omit("/html", ["<!-- -->", "<head>", "<body>"])
       no_omit("head", ["<meta>", "<script></script>"])
@@ -468,7 +468,7 @@ describe Squoosh do
     end
 
     # Do not remove spaces between links.
-    context "when compressing spaces" do
+    describe "when compressing spaces" do
       keep_spaces(["<p><a href=example.com>Foo</a> <a href=example.com>Bar</a>",
         "<p>Foo <a href=example.com>Bar</a>",
         "<p><a href=example.com>Foo</a> Bar"])
@@ -493,7 +493,7 @@ describe Squoosh do
       elms.each do |elm|
         it "keeps two newlines at the start of #{elm}" do
           html = "<!DOCTYPE html><#{elm}>\n\nFoo\n</#{elm}>"
-          expect(Squoosh.minify_html(html, HTML_OPTIONS)).to eq html
+          _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
         end
       end
 
@@ -502,7 +502,7 @@ describe Squoosh do
         it "removes a single newline at the start of #{elm}" do
           input = DOCTYPE + "<#{elm}>\nFoo\n</#{elm}>"
           output = DOCTYPE + "<#{elm}>Foo\n</#{elm}>"
-          expect(Squoosh.minify_html(input, HTML_OPTIONS)).to eq output
+          _(Squoosh.minify_html(input, HTML_OPTIONS)).must_equal output
         end
       end
 
@@ -518,7 +518,7 @@ describe Squoosh do
     end
 
     # Remove non-loud comments.
-    context "when removing comments" do
+    describe "when removing comments" do
       remove_comments("<!--",
         ["<!---->",
           "<!-- -->",
@@ -547,7 +547,7 @@ describe Squoosh do
       exact_match("combines text nodes", [["foo<!-- -->bar", "foobar"]], COMMENT_OPTIONS)
     end
 
-    context "when compressing CSS" do
+    describe "when compressing CSS" do
       # Inline styles.
       exact_match("compresses style attributes",
         [['<div style="clear: both"></div>', "<div style=clear:both></div>"]],
@@ -560,37 +560,37 @@ describe Squoosh do
         CSS_OPTIONS)
     end
 
-    context "when compressing script" do
+    describe "when compressing script" do
       # Event handlers.
       events = %w[click load blur]
       events.each do |event|
         html = "<p on#{event}='foo( 10 )'>"
         expected = "<p on#{event}=foo(10)>"
-        it "compress script in #{code}#{html}" do
-          expect(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS))
-            .to eq DOCTYPE + expected
+        it "compress script in #{html}" do
+          _(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS))
+            .must_equal(DOCTYPE + expected)
         end
       end
 
       # Script elements.
       jshtml = "<script>#{JS}</script>"
-      it "compress script elements in #{code}#{jshtml}" do
-        expect(Squoosh.minify_html(DOCTYPE + jshtml, JS_OPTIONS))
-          .to include JS_MATCH
+      it "compress script elements in #{jshtml}" do
+        _(Squoosh.minify_html(DOCTYPE + jshtml, JS_OPTIONS))
+          .must_include JS_MATCH
       end
 
       # Check that "</scr" + "ipt>" is compressed to "</script>"...
       onclickhtml = %(<p onclick='foo("</scr" + "ipt>")'>)
-      it "produces </script> in #{code}#{onclickhtml}" do
-        expect(Squoosh.minify_html(DOCTYPE + onclickhtml, JS_OPTIONS))
-          .to include 'foo("</script>")'
+      it "produces </script> in #{onclickhtml}" do
+        _(Squoosh.minify_html(DOCTYPE + onclickhtml, JS_OPTIONS))
+          .must_include 'foo("</script>")'
       end
 
       # ...except inside a script element.
       scripthtml = '<script>x="</scr" + "ipt>"</script>'
-      it "does not produce </script> in #{code}#{scripthtml}" do
-        expect(Squoosh.minify_html(DOCTYPE + scripthtml, JS_OPTIONS))
-          .not_to match(%r{</script>.*</script>})
+      it "does not produce </script> in #{scripthtml}" do
+        _(Squoosh.minify_html(DOCTYPE + scripthtml, JS_OPTIONS))
+          .wont_match(%r{</script>.*</script>})
       end
     end
 
@@ -602,32 +602,32 @@ describe Squoosh do
         </a>
       </svg>
     SVG_EOF
-    it "preserves attribute namespaces in #{code}#{svg}" do
-      expect(Squoosh.minify_html(DOCTYPE + svg, HTML_OPTIONS))
-        .to include(" xmlns=http://www.w3.org/2000/svg")
-        .and include(" xmlns:xlink=http://www.w3.org/1999/xlink")
-        .and include(" xlink:href=https://example.com")
+    it "preserves attribute namespaces in #{svg}" do
+      html = Squoosh.minify_html(DOCTYPE + svg, HTML_OPTIONS)
+      _(html).must_include(" xmlns=http://www.w3.org/2000/svg")
+      _(html).must_include(" xmlns:xlink=http://www.w3.org/1999/xlink")
+      _(html).must_include(" xlink:href=https://example.com")
     end
 
     math = "<math><mi xml:lang=en xlink:href=foo></mi></math>"
-    it "preserves attribute namespaces in #{code}#{math}" do
-      expect(Squoosh.minify_html(DOCTYPE + math, HTML_OPTIONS))
-        .to eq(DOCTYPE + math)
+    it "preserves attribute namespaces in #{math}" do
+      _(Squoosh.minify_html(DOCTYPE + math, HTML_OPTIONS))
+        .must_equal(DOCTYPE + math)
     end
   end
 
   # Minify CSS.
   describe ".minify_css" do
     it "minifies CSS" do
-      expect(Squoosh.minify_css(W3SCHOOLS_CSS, CSS_OPTIONS))
-        .to eq W3SCHOOLS_CSS_EXPECTED
+      _(Squoosh.minify_css(W3SCHOOLS_CSS, CSS_OPTIONS))
+        .must_equal W3SCHOOLS_CSS_EXPECTED
     end
   end
 
   # Minify JavaScript.
   describe ".minify_js" do
     it "minifies JavaScript" do
-      expect(Squoosh.minify_js(JS, JS_OPTIONS)).to include JS_MATCH
+      _(Squoosh.minify_js(JS, JS_OPTIONS)).must_include JS_MATCH
     end
   end
 
@@ -636,7 +636,7 @@ describe Squoosh do
       it "throws on invalid options" do
         options = {foobar: true}
         expect { Squoosh::Squoosher.new(options) }
-          .to raise_error(ArgumentError)
+          .must_raise(ArgumentError)
       end
     end
   end

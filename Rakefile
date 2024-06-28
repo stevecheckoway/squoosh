@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
+require "minitest/test_task"
 require "rake/clean"
-require "rspec/core/rake_task"
+require "rubocop/rake_task"
 require "rubygems/package_task"
-require "standard/rake"
 require "yard"
 
-RSpec::Core::RakeTask.new(:spec)
+Minitest::TestTask.create
+RuboCop::RakeTask.new
 YARD::Rake::YardocTask.new
 
 Gem::PackageTask.new(Gem::Specification.load("squoosh.gemspec")) do |pkg|
@@ -14,8 +15,8 @@ Gem::PackageTask.new(Gem::Specification.load("squoosh.gemspec")) do |pkg|
   pkg.need_zip = true
 end
 
-task default: [:spec, :standard]
-task gem: [:spec]
+task default: [:test, :rubocop]
+task gem: [:test]
 
 CLEAN.include(FileList.new("pkg", "doc", "coverage", ".yardoc"))
 CLEAN.existing!
