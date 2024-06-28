@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 ### Changed
+- Using Minitest
 ### Deprecated
 ### Removed
+- Support for Ruby prior to 3.1
 ### Fixed
+- Requires a more up-to-date Nokogiri
 ### Security
 
 ## [0.4.1]
