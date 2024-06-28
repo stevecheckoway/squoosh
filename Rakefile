@@ -15,7 +15,7 @@ Gem::PackageTask.new(Gem::Specification.load("squoosh.gemspec")) do |pkg|
   pkg.need_zip = true
 end
 
-task default: [:test, :rubocop]
+task default: [:rubocop, :test]
 task gem: [:test]
 
 CLEAN.include(FileList.new("pkg", "doc", "coverage", ".yardoc"))

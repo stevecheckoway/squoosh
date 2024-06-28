@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
-        ruby: [2.7, 3.0, 3.1, 3.2, 3.3]
+        ruby: [3.1, 3.2, 3.3]
     runs-on: ${{ matrix.os }}-latest
 
     steps:
@@ -32,9 +32,6 @@ jobs:
 
     - name: Run tests
       run: bundle exec rake
-
-    - name: Run Rubocop
-      run: bundle exec rake rubocop
 
     - name: Build Yard documentation
       run: bundle exec rake yard
