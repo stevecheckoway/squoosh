@@ -6,7 +6,10 @@ require "rubocop/rake_task"
 require "rubygems/package_task"
 require "yard"
 
-Minitest::TestTask.create
+Minitest::TestTask.create(:test) do |t|
+  t.test_prelude = %(require "coverage_helper")
+end
+
 RuboCop::RakeTask.new
 YARD::Rake::YardocTask.new
 
