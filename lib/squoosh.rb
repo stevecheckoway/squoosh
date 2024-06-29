@@ -86,7 +86,7 @@ module Squoosh
     # @return [String] the minified HTML
     def minify_html(content)
       doc = Nokogiri.HTML5(content)
-      return content unless doc&.internal_subset&.html5_dtd?
+      return content unless doc.internal_subset&.html5_dtd?
 
       remove_comments(doc) if @options[:remove_comments]
       compress_javascript(doc) if @options[:minify_javascript]
@@ -119,9 +119,8 @@ module Squoosh
       keygen link meta param source track wbr]).freeze
     RAW_TEXT_ELEMENTS = Set.new(%w[script style]).freeze
     ESCAPABLE_RAW_TEXT_ELEMENTS = Set.new(%w[textarea title]).freeze
-    FOREIGN_ELEMENTS = Set.new(%w[math svg]).freeze
     private_constant :VOID_ELEMENTS, :RAW_TEXT_ELEMENTS
-    private_constant :ESCAPABLE_RAW_TEXT_ELEMENTS, :FOREIGN_ELEMENTS
+    private_constant :ESCAPABLE_RAW_TEXT_ELEMENTS
 
     INLINE_SCRIPT_OPTIONS = {
       output: {
@@ -145,7 +144,8 @@ module Squoosh
     end
 
     def foreign_element?(node)
-      FOREIGN_ELEMENTS.include? node.name
+      return false unless node.type == Nokogiri::XML::Node::ELEMENT_NODE
+      !node.namespace.nil? && node.namespace.href != "http://www.w3.org/1999/xhtml"
     end
 
     def normal_element?(node)
@@ -267,7 +267,7 @@ module Squoosh
       # Compress style elements.
       doc.xpath("//style[not(ancestor::math or ancestor::svg)]").each do |node|
         type = node["type"]&.downcase
-        next unless type.nil? || type == "text/css"
+        next unless type.nil? || type == "text/css" || type.empty?
 
         node.content = minify_css node.content
       end
@@ -527,7 +527,6 @@ module Squoosh
     def omit_end_tag?(node)
       return true if void_element?(node) || self_closing?(node)
       return false unless @options[:omit_tags]
-      return false if node.parent.name == "noscript"
 
       next_node = node.next_sibling
       case node.name
@@ -582,10 +581,9 @@ module Squoosh
             ol p pre section table ul
           ]
         )
+        return false if parent_contains_more_content?(node)
         return false if foreign_element?(node.parent)
-
-        return !parent_contains_more_content?(node) &&
-            !%(a audio del ins map noscript video).include?(node.parent.name)
+        return !%(a audio del ins map noscript video).include?(node.parent.name)
 
       when "rb", "rt", "rp"
         # An rb element's end tag may be omitted if the rb element is

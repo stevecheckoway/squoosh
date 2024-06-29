@@ -83,6 +83,8 @@ JS_EOF
 JS_MATCH = "alert(foo())"
 
 DOCTYPE = "<!DOCTYPE html>"
+HTML4_DOCTYPE = %(<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">)
+XHTML_DOCTYPE = %(<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">)
 
 def omit(tag, htmls)
   htmls.each do |html|
@@ -269,15 +271,15 @@ describe Squoosh do
                         "<p></p><!-- --><#{t}></#{t}>"]
                     end)
 
-      # We can't test <noscript><p></p></noscript> because we can't actually
-      # specify that in HTML.
       keep "/p", (["<p></p><script></script>",
         "<p></p> <script></script>",
-        "<p></p><!-- --><script></script>"] +
-                   %w[a audio del ins map video].flat_map do |t|
-                     ["<#{t}><p></p></#{t}>",
-                       "<#{t}><p></p> </#{t}>",
-                       "<#{t}><p></p><!-- --></#{t}>"]
+        "<p></p><!-- --><script></script>",
+        "<math><mtext><p></p></mtext></math>",
+        "<svg><desc><p></p></desc></svg>"] +
+                   %w[a audio del ins map noscript video].flat_map do |t|
+                     ["<body><#{t}><p></p></#{t}>",
+                       "<body><#{t}><p></p> </#{t}>",
+                       "<body><#{t}><p></p><!-- --></#{t}>"]
                    end)
 
       # An rb element's end tag may be omitted if the rb element is immediately
@@ -544,7 +546,12 @@ describe Squoosh do
           ["<script><!-- --></script>",
             "<script><!-- --></script>"]],
         COMMENT_OPTIONS)
-      exact_match("combines text nodes", [["foo<!-- -->bar", "foobar"]], COMMENT_OPTIONS)
+      exact_match("combines text nodes",
+        [["foo<!-- -->bar", "foobar"],
+          ["<div>foo<!-- -->bar</div>", "<div>foobar</div>"],
+          ["<div><!-- -->bar</div>", "<div>bar</div>"],
+          ["<div>foo<!-- --></div>", "<div>foo</div>"]],
+        COMMENT_OPTIONS)
     end
 
     describe "when compressing CSS" do
@@ -557,6 +564,24 @@ describe Squoosh do
       exact_match("compresses style elements",
         [["<style>\n#{W3SCHOOLS_CSS}\n</style>",
           "<style>#{W3SCHOOLS_CSS_EXPECTED}</style>"]],
+        CSS_OPTIONS)
+
+      # Style elements with type text/css.
+      exact_match("compresses style elements with type text/css",
+        [["<style type='text/css'>\n#{W3SCHOOLS_CSS}\n</style>",
+          "<style type=text/css>#{W3SCHOOLS_CSS_EXPECTED}</style>"]],
+        CSS_OPTIONS)
+
+      # Style elements with empty type.
+      exact_match("compresses style elements with empty type",
+        [["<style type=''>\n#{W3SCHOOLS_CSS}\n</style>",
+          "<style type>#{W3SCHOOLS_CSS_EXPECTED}</style>"]],
+        CSS_OPTIONS)
+
+      # Do not compress style elements with type other than text/css or empty.
+      exact_match("does not compress style elements with type other than text/css or empty",
+        [["<style type='text/plain'>\n#{W3SCHOOLS_CSS}\n</style>",
+          "<style type=text/plain>\n#{W3SCHOOLS_CSS}\n</style>"]],
         CSS_OPTIONS)
     end
 
@@ -592,6 +617,17 @@ describe Squoosh do
         _(Squoosh.minify_html(DOCTYPE + scripthtml, JS_OPTIONS))
           .wont_match(%r{</script>.*</script>})
       end
+
+      it "compresses script elements with type text/javascript" do
+        html = "<script type='text/javascript'>\n#{JS}\n</script>"
+        _(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS)).must_include(JS_MATCH)
+      end
+
+      it "does not compress script elements with type other than text/javascript" do
+        notscript = "not    JavaScript"
+        html = "<script type='text/plain'>#{notscript}</script>"
+        _(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS)).must_include(notscript)
+      end
     end
 
     # Namespaced attributes in foreign elements.
@@ -609,10 +645,31 @@ describe Squoosh do
       _(html).must_include(" xlink:href=https://example.com")
     end
 
-    math = "<math><mi xml:lang=en xlink:href=foo></mi></math>"
+    math = "<math><mi xml:lang=en xlink:href=foo>f</mi></math>"
     it "preserves attribute namespaces in #{math}" do
       _(Squoosh.minify_html(DOCTYPE + math, HTML_OPTIONS))
         .must_equal(DOCTYPE + math)
+    end
+
+    # Do not modify anything other than HTML 5 documents.
+    it "does not modify HTML 4" do
+      html = "#{HTML4_DOCTYPE}\n<html>\n<body>X   X</body>\n</html>"
+      _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
+    end
+
+    it "does not modify XHTML" do
+      html = "#{XHTML_DOCTYPE}\n<html>\n<body>X   X</body>\n</html>"
+      _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
+    end
+
+    it "does not modify HTML lacking a DOCTYPE" do
+      html = "<html>\n<body>X   X</body>\n</html>"
+      _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
+    end
+
+    it "preserves Internet Explorer conditional comments" do
+      html = "#{DOCTYPE}<html><body><!--[if IE]><p>IE</p><![endif]--></body></html>"
+      _(Squoosh.minify_html(html, HTML_OPTIONS)).must_include("<!--[if IE]><p>IE</p><![endif]-->")
     end
   end
 

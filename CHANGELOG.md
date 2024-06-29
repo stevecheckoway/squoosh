@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Compress empty foreign elements, not just `math` and `svg`
 ### Changed
 - Using Minitest
+- End tags will now be omitted in children of 'noscript' elements
 ### Deprecated
 ### Removed
 - Support for Ruby prior to 3.1
