@@ -472,6 +472,7 @@ describe Squoosh do
     # Do not remove spaces between links.
     describe "when compressing spaces" do
       keep_spaces(["<p><a href=example.com>Foo</a> <a href=example.com>Bar</a>",
+        "<span><a href=example.com>Foo</a> <a href=example.com>Bar</a></span>",
         "<p>Foo <a href=example.com>Bar</a>",
         "<p><a href=example.com>Foo</a> Bar"])
 
