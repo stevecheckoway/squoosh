@@ -13,8 +13,14 @@ on:
     branches: ['*']
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   test:
+    permissions:
+      checks: write  # for coverallsapp/github-action to create new checks
+      contents: read  # for actions/checkout to fetch code
     strategy:
       fail-fast: false
       matrix:
@@ -23,9 +29,14 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Harden Runner
+      uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
+      with:
+        egress-policy: audit
+
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
     - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
+      uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
@@ -37,19 +48,26 @@ jobs:
       run: bundle exec rake yard
 
     - name: Report to Coveralls
-      uses: coverallsapp/github-action@v2
+      uses: coverallsapp/github-action@3dfc5567390f6fa9267c0ee9c251e4c8c3f18949 # v2.2.3
       with:
         github-token: ${{ secrets.github_token }}
         flag-name: test-${{ matrix.os }}-${{ matrix.ruby }}
         parallel: true
 
   finish:
+    permissions:
+      checks: write  # for coverallsapp/github-action to create new checks
     needs: test
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
+      with:
+        egress-policy: audit
+
     - name: Report completion to Coveralls
-      uses: coverallsapp/github-action@v2
+      uses: coverallsapp/github-action@3dfc5567390f6fa9267c0ee9c251e4c8c3f18949 # v2.2.3
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
