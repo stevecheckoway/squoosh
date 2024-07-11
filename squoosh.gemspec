@@ -40,8 +40,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "standard"
   spec.add_development_dependency "yard"
 
-  spec.add_runtime_dependency "nokogiri", "~> 1.16"
-  spec.add_runtime_dependency "sassc", "~> 2.1"
-  spec.add_runtime_dependency "uglifier", "~> 4.1"
+  spec.add_dependency "nokogiri", "~> 1.16"
+  spec.add_dependency "sassc", "~> 2.1"
+  spec.add_dependency "uglifier", "~> 4.1"
 end
 # vim: set sw=2 sts=2 ts=8 et:
