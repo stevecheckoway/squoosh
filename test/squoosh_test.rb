@@ -118,6 +118,7 @@ def keep_spaces(htmls)
   htmls.each do |html|
     it "keeps spaces in #{html}" do
       html = DOCTYPE + html
+
       _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
     end
   end
@@ -127,6 +128,7 @@ def remove_comments(comment_start, htmls)
   htmls.each do |html|
     it "removes comments in #{html}" do
       html = DOCTYPE + html
+
       _(Squoosh.minify_html(html, COMMENT_OPTIONS))
         .wont_match comment_start
     end
@@ -138,6 +140,7 @@ def exact_match(prefix, htmls, options)
     it "#{prefix} in #{html[0]}" do
       input = DOCTYPE + html[0]
       output = DOCTYPE + html[1]
+
       _(Squoosh.minify_html(input, options)).must_equal output
     end
   end
@@ -496,6 +499,7 @@ describe Squoosh do
       elms.each do |elm|
         it "keeps two newlines at the start of #{elm}" do
           html = "<!DOCTYPE html><#{elm}>\n\nFoo\n</#{elm}>"
+
           _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
         end
       end
@@ -505,6 +509,7 @@ describe Squoosh do
         it "removes a single newline at the start of #{elm}" do
           input = DOCTYPE + "<#{elm}>\nFoo\n</#{elm}>"
           output = DOCTYPE + "<#{elm}>Foo\n</#{elm}>"
+
           _(Squoosh.minify_html(input, HTML_OPTIONS)).must_equal output
         end
       end
@@ -592,6 +597,7 @@ describe Squoosh do
       events.each do |event|
         html = "<p on#{event}='foo( 10 )'>"
         expected = "<p on#{event}=foo(10)>"
+
         it "compress script in #{html}" do
           _(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS))
             .must_equal(DOCTYPE + expected)
@@ -600,6 +606,7 @@ describe Squoosh do
 
       # Script elements.
       jshtml = "<script>#{JS}</script>"
+
       it "compress script elements in #{jshtml}" do
         _(Squoosh.minify_html(DOCTYPE + jshtml, JS_OPTIONS))
           .must_include JS_MATCH
@@ -607,6 +614,7 @@ describe Squoosh do
 
       # Check that "</scr" + "ipt>" is compressed to "</script>"...
       onclickhtml = %(<p onclick='foo("</scr" + "ipt>")'>)
+
       it "produces </script> in #{onclickhtml}" do
         _(Squoosh.minify_html(DOCTYPE + onclickhtml, JS_OPTIONS))
           .must_include 'foo("</script>")'
@@ -614,6 +622,7 @@ describe Squoosh do
 
       # ...except inside a script element.
       scripthtml = '<script>x="</scr" + "ipt>"</script>'
+
       it "does not produce </script> in #{scripthtml}" do
         _(Squoosh.minify_html(DOCTYPE + scripthtml, JS_OPTIONS))
           .wont_match(%r{</script>.*</script>})
@@ -621,12 +630,14 @@ describe Squoosh do
 
       it "compresses script elements with type text/javascript" do
         html = "<script type='text/javascript'>\n#{JS}\n</script>"
+
         _(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS)).must_include(JS_MATCH)
       end
 
       it "does not compress script elements with type other than text/javascript" do
         notscript = "not    JavaScript"
         html = "<script type='text/plain'>#{notscript}</script>"
+
         _(Squoosh.minify_html(DOCTYPE + html, JS_OPTIONS)).must_include(notscript)
       end
     end
@@ -641,12 +652,14 @@ describe Squoosh do
     SVG_EOF
     it "preserves attribute namespaces in #{svg}" do
       html = Squoosh.minify_html(DOCTYPE + svg, HTML_OPTIONS)
+
       _(html).must_include(" xmlns=http://www.w3.org/2000/svg")
       _(html).must_include(" xmlns:xlink=http://www.w3.org/1999/xlink")
       _(html).must_include(" xlink:href=https://example.com")
     end
 
     math = "<math><mi xml:lang=en xlink:href=foo>f</mi></math>"
+
     it "preserves attribute namespaces in #{math}" do
       _(Squoosh.minify_html(DOCTYPE + math, HTML_OPTIONS))
         .must_equal(DOCTYPE + math)
@@ -655,21 +668,25 @@ describe Squoosh do
     # Do not modify anything other than HTML 5 documents.
     it "does not modify HTML 4" do
       html = "#{HTML4_DOCTYPE}\n<html>\n<body>X   X</body>\n</html>"
+
       _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
     end
 
     it "does not modify XHTML" do
       html = "#{XHTML_DOCTYPE}\n<html>\n<body>X   X</body>\n</html>"
+
       _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
     end
 
     it "does not modify HTML lacking a DOCTYPE" do
       html = "<html>\n<body>X   X</body>\n</html>"
+
       _(Squoosh.minify_html(html, HTML_OPTIONS)).must_equal html
     end
 
     it "preserves Internet Explorer conditional comments" do
       html = "#{DOCTYPE}<html><body><!--[if IE]><p>IE</p><![endif]--></body></html>"
+
       _(Squoosh.minify_html(html, HTML_OPTIONS)).must_include("<!--[if IE]><p>IE</p><![endif]-->")
     end
   end
@@ -693,6 +710,7 @@ describe Squoosh do
     describe ".new" do
       it "throws on invalid options" do
         options = {foobar: true}
+
         expect { Squoosh::Squoosher.new(options) }
           .must_raise(ArgumentError)
       end
